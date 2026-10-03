@@ -876,6 +876,10 @@ export async function startServer(
     port: config.port,
     fetch: async (request: Request) => {
       const url = new URL(request.url);
+      if (/^\/(?:den-session|cloud-provider-sync|anonymous-inference)(?:\/|$)/.test(url.pathname)
+        || /^\/workspace\/[^/]+\/(?:desktop-cloud-sync|cloud-plugins|cloud-mcp)(?:\/|$)/.test(url.pathname)) {
+        return new Response(JSON.stringify({ error: "LSS Harness uses Ollama without cloud accounts." }), { status: 410, headers: { "Content-Type": "application/json" } });
+      }
       const startedAt = Date.now();
       let authMode: AuthMode = "none";
       let proxyService: "opencode" | undefined;
@@ -3424,6 +3428,7 @@ function createRoutes(
     const workspace = resolveEngineRuntimeWorkspace(config);
     const body = await readJsonBody(ctx.request);
     const providerPatch = parseRuntimeProviderPatchPayload(body);
+    await managedDesktopPolicy(config).assert("provider", { providerIDs: Object.entries(providerPatch).filter(([, value]) => value !== null).map(([id]) => id) });
     const result = await writeGlobalRuntimeOpencodeConfig(config, (current) => ({
       ...current,
       provider: mergeRuntimeProviderUpdate(current.provider, providerPatch),

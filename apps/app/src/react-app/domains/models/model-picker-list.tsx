@@ -24,7 +24,7 @@ export function ModelSourceIcon({ model }: { model: ModelRef & { source?: ModelO
 
 function ProviderMark({ model, description, retained = false }: { model: ModelRef; description?: string; retained?: boolean }) {
   return <div data-slot="model-provider-mark" className="flex size-4 shrink-0 items-center justify-center">
-    {isAutoModel(model) ? <img src={resolveExtensionIconSrc("/openwork-mark.svg")} alt="OpenWork" className="size-4" /> : <ProviderIcon providerId={retained ? undefined : model.providerID} providerName={description} size={16} />}
+    {isAutoModel(model) ? <img src={resolveExtensionIconSrc("/lss-mark.svg")} alt="LSS Harness" className="size-4" /> : <ProviderIcon providerId={retained ? undefined : model.providerID} providerName={description} size={16} />}
   </div>;
 }
 

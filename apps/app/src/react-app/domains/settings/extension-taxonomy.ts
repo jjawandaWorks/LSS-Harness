@@ -35,14 +35,14 @@ export function primaryLibraryFilter(filter?: ExtensionInventoryFilter): Extensi
   return filter === "plugin" ? "plugin" : "all";
 }
 
-/** Built-ins ship with OpenWork and run here, so they are apps. Accounts arrive as org connections. */
+/** Built-ins ship with LSS Harness and run here, so they are apps. Accounts arrive as org connections. */
 export function taxonomyForDirectoryEntry(entry: McpDirectoryInfo): ExtensionTaxonomy {
   if (isBuiltInOpenWorkExtension(entry) || entry.kind === "ui-control") return "app";
   return "mcp";
 }
 
 /**
- * The MCPs category lists third-party servers only. OpenWork's own runtimes
+ * The MCPs category lists third-party servers only. LSS Harness's own runtimes
  * (Computer Use, the browser panel, Ollama, UI control) and auto-managed
  * plumbing such as Cloud Control are app functionality, not MCPs to browse;
  * their setup pages stay reachable by direct link.

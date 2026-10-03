@@ -37,7 +37,7 @@ function normalizeRuntimeOpencodeConfig(value: unknown): RuntimeOpencodeConfig {
   const mcp = isRecord(value.mcp) ? value.mcp as Record<string, Record<string, unknown>> : undefined;
   const permission = isRecord(value.permission) ? value.permission : undefined;
   const externalDirectory = permission && isRecord(permission.external_directory) ? permission.external_directory : undefined;
-  const provider = isRecord(value.provider) ? value.provider : undefined;
+  const provider = isRecord(value.provider) ? Object.fromEntries(Object.entries(value.provider).filter(([id]) => id === "ollama")) : undefined;
   return {
     ...(defaultAgent ? { default_agent: defaultAgent } : {}),
     ...(value.managedPolicy !== undefined ? { managedPolicy: desktopConfigSchema.parse(value.managedPolicy) } : {}),
@@ -96,7 +96,7 @@ export function runtimeProviderMap(config: RuntimeOpencodeConfig): Record<string
   const provider: Record<string, Record<string, unknown>> = {};
   if (!isRecord(config.provider)) return provider;
   for (const [providerId, value] of Object.entries(config.provider)) {
-    if (isRecord(value)) provider[providerId] = value;
+    if (providerId === "ollama" && isRecord(value)) provider[providerId] = value;
   }
   return provider;
 }

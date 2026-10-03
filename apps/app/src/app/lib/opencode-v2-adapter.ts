@@ -588,7 +588,7 @@ function appEntriesFromScript(calls: unknown, output: unknown): Record<string, u
 }
 
 /**
- * Code Mode runs OpenWork Cloud calls inside one `execute`, whose part keeps
+ * Code Mode runs LSS Harness Cloud calls inside one `execute`, whose part keeps
  * only `{ tool, status, input }` per call. The server's v2 plugin
  * (openwork-mcp-results-v2) saves the calls that report a connection in
  * `openworkMcpResults`; surface each as the ordinary tool part v1 produces for

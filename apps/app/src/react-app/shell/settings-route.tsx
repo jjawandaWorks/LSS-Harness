@@ -86,7 +86,6 @@ import {
 import { createProviderAuthStore, useProviderAuthStoreSnapshot } from "@/react-app/domains/connections/provider-auth/store";
 import ProviderAuthModal, { PROVIDER_LABELS } from "@/react-app/domains/connections/provider-auth/provider-auth-modal";
 import ConnectionsModals from "@/react-app/domains/connections/modals";
-import { AiSettingsView } from "@/react-app/domains/settings/pages/ai-view";
 // Side-effect imports: register extension config components into the registry.
 import { OllamaConfig } from "@/react-app/domains/settings/ollama-config";
 import "@/react-app/domains/settings/computer-use-config";
@@ -102,7 +101,6 @@ import { SettingsStack } from "@/react-app/domains/settings/settings-section";
 import { AdvancedView } from "@/react-app/domains/settings/pages/advanced-view";
 import { AppearanceView } from "@/react-app/domains/settings/pages/appearance-view";
 import { KeyboardShortcutsView } from "@/react-app/domains/settings/pages/keyboard-shortcuts-view";
-import { CloudAccountView } from "@/react-app/domains/settings/pages/cloud-account-view";
 import {
   connectPluginsForComposer,
   EMPTY_CONNECT_CAPABILITY_INVENTORY,
@@ -114,8 +112,6 @@ import {
   readCachedConnectCapabilities,
 } from "@/react-app/domains/connections/cloud-inventory-cache";
 import { createOpaqueDiagnosticsScopeKey } from "@/react-app/domains/settings/pages/agent-context-diagnostics-section";
-import { CloudProvidersView } from "@/react-app/domains/settings/pages/cloud-providers-view";
-import { GatewayUsageSettingsView } from "@/react-app/domains/cloud/gateway-usage-panel";
 import { DebugView } from "@/react-app/domains/settings/pages/debug-view";
 import { EnvironmentView } from "@/react-app/domains/settings/pages/environment-view";
 import { ExtensionsView, type ExtensionsSection } from "@/react-app/domains/settings/pages/extensions-view";
@@ -1038,7 +1034,7 @@ function SettingsRouteContent(props: SettingsSurfaceProps = {}) {
       Object.values(providerAuthSnapshot.importedCloudProviders ?? {}).some(isOpenWorkCloudProvider),
     [providerAuthSnapshot.cloudOrgProviders, providerAuthSnapshot.importedCloudProviders],
   );
-  // Entitled = Den/import says OpenWork Models is included. Available = local
+  // Entitled = Den/import says LSS Harness Models is included. Available = local
   // engine actually exposes selectable openwork models.
   const openWorkModelsEntitled = cloudSession.isSignedIn && hasOpenWorkCloudProvider;
   const openWorkModelsAvailable = hasOpenWorkModelsAvailable({
@@ -1056,7 +1052,7 @@ function SettingsRouteContent(props: SettingsSurfaceProps = {}) {
   }, [cloudSession.baseUrl, platform]);
   const autoClient = isDesktopRuntime() && openworkServerSnapshot.openworkServerClient && isLoopbackOpenworkServerUrl(openworkServerSnapshot.openworkServerClient.baseUrl) ? openworkServerSnapshot.openworkServerClient : null;
   const [autoPreferences, setAutoPreferences] = useState<DesktopFreePreferences | null>(null);
-  // Until an operator switches free Auto on, Settings shows no OpenWork Models row for it.
+  // Until an operator switches free Auto on, Settings shows no LSS Harness Models row for it.
   // Settings has no workspace context: read status from the same local client as preferences.
   const { query: autoAccessQuery } = useAutoAccess(Boolean(autoPreferences), {
     openworkServerClient: autoClient, workspaceId: selectedWorkspaceId ?? "",
@@ -1321,7 +1317,7 @@ function SettingsRouteContent(props: SettingsSurfaceProps = {}) {
   const installOpenAiImageExtension = useCallback(async (apiKey: string) => {
     const resolvedApiKey = apiKey.trim();
     if (!openworkClient) {
-      setImageExtensionError("OpenWork server is not connected.");
+      setImageExtensionError("LSS Harness server is not connected.");
       return;
     }
     if (!resolvedApiKey) {
@@ -1335,7 +1331,7 @@ function SettingsRouteContent(props: SettingsSurfaceProps = {}) {
     try {
       await openworkClient.upsertUserEnv([{ key: "OPENAI_API_KEY", value: resolvedApiKey }]);
       setUserEnvKeys((current) => Array.from(new Set([...current, "OPENAI_API_KEY"])));
-      setImageExtensionStatus("Saved OPENAI_API_KEY. Agents can use OpenWork extension actions for image generation.");
+      setImageExtensionStatus("Saved OPENAI_API_KEY. Agents can use LSS Harness extension actions for image generation.");
     } catch (error) {
       setImageExtensionError(describeRouteError(error));
     } finally {
@@ -1349,7 +1345,7 @@ function SettingsRouteContent(props: SettingsSurfaceProps = {}) {
     const apiKey = input.apiKey.trim();
     const prompt = input.prompt.trim();
     if (!client || !workspaceId) {
-      setImageGenerationError("OpenWork server is not connected for this workspace.");
+      setImageGenerationError("LSS Harness server is not connected for this workspace.");
       return;
     }
     if (!apiKey) {
@@ -1396,7 +1392,7 @@ function SettingsRouteContent(props: SettingsSurfaceProps = {}) {
     const workspaceId = runtimeWorkspaceId?.trim() ?? "";
     const modelId = input.modelId.trim();
     if (!client || !workspaceId) {
-      setLocalProviderError("OpenWork server is not connected for this workspace.");
+      setLocalProviderError("LSS Harness server is not connected for this workspace.");
       return;
     }
     if (!modelId) {
@@ -2338,7 +2334,7 @@ function SettingsRouteContent(props: SettingsSurfaceProps = {}) {
     setRenameWorkspaceBusy(true);
     try {
       if (!openworkClient) {
-        toast.error("OpenWork server is unavailable. Reconnect the server before renaming workspaces.");
+        toast.error("LSS Harness server is unavailable. Reconnect the server before renaming workspaces.");
         return;
       }
       await openworkClient.updateWorkspaceDisplayName(renameWorkspaceId, trimmed);
@@ -2375,7 +2371,7 @@ function SettingsRouteContent(props: SettingsSurfaceProps = {}) {
       }
       return;
     }
-    throw new Error("OpenWork server is unavailable. Reconnect the server before exporting workspace config.");
+    throw new Error("LSS Harness server is unavailable. Reconnect the server before exporting workspace config.");
   }, [workspaceServerClientResolver, workspaces]);
 
   const handleForgetWorkspace = useCallback(async (workspaceId: string) => {
@@ -2468,93 +2464,10 @@ function SettingsRouteContent(props: SettingsSurfaceProps = {}) {
           </SettingsStack>
         );
       case "ai":
-        return (
-          <AiSettingsView
-            busy={busy}
-            providerAuthBusy={providerAuthSnapshot.providerAuthBusy}
-            providerStatusLabel={providerStatusLabel}
-            providerStatusStyle={providerStatusStyle}
-            providerSummary={providerSummary}
-            providerLoadState={activeClient ? providerAuthSnapshot.providerLoadState : { status: "idle", error: null }}
-            onRetryProviders={async () => { await providerAuthStore.refreshProviders({ force: true }); }}
-            connectedProviders={connectedProviders}
-            disconnectingProviderId={null}
-            providerConnectError={providerAuthSnapshot.providerAuthError}
-            providerDisconnectStatus={configActionStatus}
-            providerDisconnectError={null}
-            onOpenProviderAuth={handleOpenProviderAuth}
-            onDisconnectProvider={async (providerId) => {
-              const message = await providerAuthStore.disconnectProvider(providerId);
-              if (typeof message === "string" && message.trim()) {
-                setConfigActionStatus(message);
-              }
-            }}
-            canDisconnectProvider={(provider) =>
-              provider.id.trim().toLowerCase() === "opencode" || provider.source !== "env"
-            }
-            disabledProviders={activeClient ? hiddenProviders : []}
-            enablingProviderId={enablingProviderId}
-            onEnableProvider={async (providerId) => {
-              setEnablingProviderId(providerId);
-              try {
-                const message = await providerAuthStore.enableProvider(providerId);
-                if (message.trim()) setConfigActionStatus(message);
-              } catch {
-                // The store publishes the error as providerAuthError.
-              } finally {
-                setEnablingProviderId(null);
-              }
-            }}
-            canAddProviders={!providerAuthStore.isProviderAddRestricted()}
-            organizationName={cloudSession.activeOrgName}
-            cloudProviderIds={new Set([
-              ...Object.values(providerAuthSnapshot.importedCloudProviders ?? {}).map((p) => p.providerId),
-              ...(openWorkModelsEntitled || openWorkModelsAvailable ? ["openwork"] : []),
-            ])}
-            gatewayProviderIds={gatewayProviderIds}
-            gatewayConnectProviders={gatewayConnectProviders}
-            connectingGatewayProviderId={connectingGatewayProviderId}
-            onOpenModelConnections={cloudSession.isSignedIn ? () => { void platform.openLink(new URL("/dashboard/model-connections", readDenSettings().baseUrl).toString()); } : undefined}
-            onCancelGatewayConnect={() => {
-              gatewayConnectAbort.current?.abort();
-              setConnectingGatewayProviderId(null);
-              toast.info("Stopped waiting. Browser sign-in was not revoked. Refresh AI Providers after finishing, or Connect again to retry.");
-            }}
-            onConnectGatewayProvider={(provider) => { void handleConnectGatewayProvider(provider); }}
-            showOpenWorkModelsSyncing={showOpenWorkModelsSyncing}
-            autoPreferences={visibleAutoPreferences}
-            autoSwitchedOff={autoSwitchedOff}
-            autoBusy={autoBusy}
-            autoError={autoError}
-            onSetAutoEnabled={autoClient ? setAutoEnabled : undefined}
-            organizationProviderIds={organizationProviderIds}
-            onOpenDen={openProvidersInDen}
-            cloudProvidersView={
-              <CloudProvidersView
-                key={`${cloudSession.baseUrl}:${cloudSession.activeOrganization?.id ?? "signed-out"}`}
-                embedded
-                onOpenDen={openProvidersInDen}
-                gatewayConnectProviders={gatewayConnectProviders}
-                connectingGatewayProviderId={connectingGatewayProviderId}
-                onConnectGatewayProvider={(provider) => { void handleConnectGatewayProvider(provider); }}
-                checkDesktopAppRestriction={checkDesktopRestriction}
-                cloudOrgProviders={providerAuthSnapshot.cloudOrgProviders}
-                connectCloudProvider={providerAuthStore.connectCloudProvider}
-                importedCloudProviders={providerAuthSnapshot.importedCloudProviders}
-                importsUnavailable={
-                  openworkServerSnapshot.openworkServerCapabilities?.config?.read === false ||
-                  openworkServerSnapshot.openworkServerCapabilities?.config?.write === false
-                }
-                lastSyncError={providerAuthSnapshot.lastSyncError}
-                openworkServerAvailable={Boolean(openworkServerSnapshot.openworkServerClient)}
-                onOpenAccount={openCloudAccountSettings}
-                refreshCloudOrgProviders={providerAuthStore.refreshCloudOrgProviders}
-                runCloudProviderSync={providerAuthStore.runCloudProviderSync}
-                serverSync={providerAuthSnapshot.cloudProviderServerSync}
-              />
-            }
-          />
-        );
+      case "cloud-account":
+      case "cloud-providers":
+      case "cloud-marketplaces":
+      case "usage":
       case "ollama":
         return (
           <OllamaConfig
@@ -2690,34 +2603,6 @@ function SettingsRouteContent(props: SettingsSurfaceProps = {}) {
               />
             )}
 
-          />
-        );
-      case "cloud-account":
-        return (
-          <CloudAccountView
-            developerMode={developerMode}
-            session={denSession}
-          />
-        );
-      case "usage":
-        return <GatewayUsageSettingsView onOpenAccount={openCloudAccountSettings} />;
-      case "cloud-providers":
-        return (
-          <CloudProvidersView
-            checkDesktopAppRestriction={checkDesktopRestriction}
-            cloudOrgProviders={providerAuthSnapshot.cloudOrgProviders}
-            connectCloudProvider={providerAuthStore.connectCloudProvider}
-            importedCloudProviders={providerAuthSnapshot.importedCloudProviders}
-            importsUnavailable={
-              openworkServerSnapshot.openworkServerCapabilities?.config?.read === false ||
-              openworkServerSnapshot.openworkServerCapabilities?.config?.write === false
-            }
-            lastSyncError={providerAuthSnapshot.lastSyncError}
-            openworkServerAvailable={Boolean(openworkServerSnapshot.openworkServerClient)}
-            onOpenAccount={openCloudAccountSettings}
-            refreshCloudOrgProviders={providerAuthStore.refreshCloudOrgProviders}
-            runCloudProviderSync={providerAuthStore.runCloudProviderSync}
-            serverSync={providerAuthSnapshot.cloudProviderServerSync}
           />
         );
       case "advanced":

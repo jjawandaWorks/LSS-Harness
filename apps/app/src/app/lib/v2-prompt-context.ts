@@ -1,6 +1,6 @@
 /**
  * An OpenCode v2 prompt is one string, while a user turn is several parts: the
- * person's words, pasted text, and hidden context OpenWork adds for the model
+ * person's words, pasted text, and hidden context LSS Harness adds for the model
  * (attachment paths, pill instructions). This module owns that encoding in
  * both directions so the sent message renders the way v1 renders its parts.
  *
@@ -90,7 +90,7 @@ export type SplitV2Prompt = {
 };
 
 /**
- * Split a stored v2 prompt back into what the person sent and what OpenWork
+ * Split a stored v2 prompt back into what the person sent and what LSS Harness
  * added. Turns sent before the context block existed kept the attachment note
  * inline, glued to the words; that note is recognized and removed too.
  */

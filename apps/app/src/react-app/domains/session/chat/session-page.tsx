@@ -1232,7 +1232,7 @@ export function SessionPage(props: SessionPageProps) {
       name: "sessionId",
       type: "string",
       required: true,
-      description: "Session id from the OpenWork context resources or conversation tabs.",
+      description: "Session id from the LSS Harness context resources or conversation tabs.",
     }],
     execute: (args) => {
       if (!args || typeof args !== "object" || !("sessionId" in args) || typeof args.sessionId !== "string") {

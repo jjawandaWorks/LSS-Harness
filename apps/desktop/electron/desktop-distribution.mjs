@@ -1,29 +1,14 @@
 export const PUBLIC_DESKTOP_DISTRIBUTION = Object.freeze({
   flavor: "public",
-  appName: "OpenWork",
-  appIdentifier: "com.differentai.openwork",
+  appName: "LSS Harness",
+  appIdentifier: "com.lss.harness",
   protocolScheme: "openwork",
   requireSignin: false,
   requireActivation: false,
 });
 
-export const CLOUD_DESKTOP_DISTRIBUTION = Object.freeze({
-  flavor: "cloud",
-  appName: "OpenWork Cloud",
-  appIdentifier: "com.differentai.openwork",
-  protocolScheme: "openwork",
-  requireSignin: true,
-  requireActivation: false,
-});
-
-export const ENTERPRISE_DESKTOP_DISTRIBUTION = Object.freeze({
-  flavor: "enterprise",
-  appName: "OpenWork Enterprise",
-  appIdentifier: "com.differentai.openwork",
-  protocolScheme: "openwork",
-  requireSignin: true,
-  requireActivation: true,
-});
+export const CLOUD_DESKTOP_DISTRIBUTION = PUBLIC_DESKTOP_DISTRIBUTION;
+export const ENTERPRISE_DESKTOP_DISTRIBUTION = PUBLIC_DESKTOP_DISTRIBUTION;
 
 function normalizeFlavor(value) {
   const flavor = value?.trim().toLowerCase();
@@ -40,11 +25,6 @@ export function resolveDesktopDistribution({
   packageFlavor,
   environmentFlavor,
 }) {
-  const flavor = normalizeFlavor(
-    isPackaged ? packageFlavor : (environmentFlavor || packageFlavor),
-  );
-  if (flavor === "cloud") return CLOUD_DESKTOP_DISTRIBUTION;
-  if (flavor === "enterprise") return ENTERPRISE_DESKTOP_DISTRIBUTION;
   return PUBLIC_DESKTOP_DISTRIBUTION;
 }
 
@@ -62,12 +42,7 @@ export function enterpriseActivationComplete(config) {
 }
 
 export function desktopActivationRequired(distribution, config) {
-  const requireActivation = distribution.flavor === "enterprise"
-    ? distribution.requireActivation
-    : (typeof config?.requireActivation === "boolean"
-        ? config.requireActivation
-        : distribution.requireActivation);
-  return requireActivation && !enterpriseActivationComplete(config);
+  return false;
 }
 
 const ENTERPRISE_PREACTIVATION_COMMANDS = new Set([

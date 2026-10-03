@@ -37,12 +37,12 @@ export type ShellConfig = {
 /* ------------------------------------------------------------------ */
 
 export const DEFAULT_SHELL_CONFIG: ShellConfig = {
-  appName: "OpenWork",
+  appName: "LSS Harness",
   statusBar: true,
   sidebar: true,
-  docsButton: true,
-  feedbackButton: true,
-  cloudSignin: true,
+  docsButton: false,
+  feedbackButton: false,
+  cloudSignin: false,
   welcomePage: true,
   starterCards: true,
   modelPicker: true,
@@ -55,7 +55,7 @@ export const DEFAULT_SHELL_CONFIG: ShellConfig = {
 /*  Persistence                                                        */
 /* ------------------------------------------------------------------ */
 
-const STORAGE_KEY = "openwork.shell-config";
+const STORAGE_KEY = "lss-harness.shell-config";
 
 function readShellConfig(): ShellConfig {
   if (typeof window === "undefined") return DEFAULT_SHELL_CONFIG;
@@ -63,7 +63,7 @@ function readShellConfig(): ShellConfig {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULT_SHELL_CONFIG;
     const parsed = JSON.parse(raw);
-    return { ...DEFAULT_SHELL_CONFIG, ...parsed };
+    return { ...DEFAULT_SHELL_CONFIG, ...parsed, appName: "LSS Harness", cloudSignin: false, docsButton: false, feedbackButton: false };
   } catch {
     return DEFAULT_SHELL_CONFIG;
   }
@@ -95,7 +95,7 @@ export function ShellConfigProvider({ children }: { children: ReactNode }) {
 
   const update = useCallback((patch: Partial<ShellConfig>) => {
     setConfig((prev) => {
-      const next = { ...prev, ...patch };
+      const next = { ...prev, ...patch, appName: "LSS Harness", cloudSignin: false, docsButton: false, feedbackButton: false };
       writeShellConfig(next);
       return next;
     });

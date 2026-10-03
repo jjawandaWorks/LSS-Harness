@@ -270,7 +270,7 @@ export function GatewayUsageSettingsView({ onOpenAccount }: { onOpenAccount: () 
   const status = usage.data;
   const content = !usage.authorized ? (
     <div className="flex flex-col items-start gap-3">
-      <p className="text-[13px] text-muted-foreground">Sign in to OpenWork Cloud to see your usage limits.</p>
+      <p className="text-[13px] text-muted-foreground">Sign in to LSS Harness Cloud to see your usage limits.</p>
       <Button size="sm" variant="outline" onClick={onOpenAccount}>Open Account</Button>
     </div>
   ) : usage.query.isPending ? (

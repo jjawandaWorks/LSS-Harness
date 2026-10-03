@@ -1,8 +1,8 @@
 extends: ./electron-builder.base.yml
-appId: com.differentai.openwork
-productName: OpenWork
+appId: com.lss.harness
+productName: LSS Harness
 protocols:
-  - name: OpenWork
+  - name: LSS Harness
     schemes:
       - openwork
 linux:

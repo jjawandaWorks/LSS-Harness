@@ -7,7 +7,7 @@ import type {
 import { t } from "../../../i18n";
 import type { ExtensionTaxonomy } from "./extension-taxonomy";
 
-/** Where a Library row sits: on this computer, added by the member, or shared by OpenWork. */
+/** Where a Library row sits: on this computer, added by the member, or shared by LSS Harness. */
 export type LibrarySection = "mac" | "mine" | "openwork";
 
 export type LibraryAudience = {
@@ -101,7 +101,7 @@ export function isOwnedLibraryPlugin(item: Pick<DenLibraryPluginItem, "role" | "
   return item.role === "owner" || item.edges.some((edge) => edge.kind === "mine");
 }
 
-/** Who shared an item with the member, for the From OpenWork caption. */
+/** Who shared an item with the member, for the From LSS Harness caption. */
 export function librarySharedByCaption(item: Pick<DenLibraryPluginItem, "edges">, organizationName: string): string {
   for (const edge of item.edges) {
     if (edge.kind === "person" && edge.sharedByName) return t("extensions.row_shared_by", { name: edge.sharedByName });

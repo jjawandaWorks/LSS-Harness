@@ -35,7 +35,7 @@ function parseStoredModel(json: string): WorkspaceDefaultModel | null {
     return null;
   }
   const parsed = workspaceDefaultModelSchema.nullable().safeParse(value);
-  return parsed.success ? parsed.data : null;
+  return parsed.success && parsed.data?.providerID === "ollama" ? parsed.data : null;
 }
 
 const workspaceDefaultModelStore = createWorkspaceKvStore<WorkspaceDefaultModel | null>({

@@ -1,6 +1,5 @@
 import { legacyExecutionPermissions } from "./managed-policy-rules.js";
 import { DESKTOP_POLICY_ENFORCEMENT_ENABLED, desktopCapabilityConfig } from "@openwork/types/den/desktop-policies-runtime";
-import { materializeLegacyFastProviders } from "@openwork/types/cloud-model-fast";
 import { isManagedPolicyPlugin } from "./managed-policy-plugin.js";
 /**
  * Runtime OpenCode configuration injected via a server-managed config file
@@ -21,11 +20,7 @@ import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import {
   openworkExtensionsPreviewPluginPath,
-  openworkCapabilitiesKnowledgePluginPath,
-  openworkAnthropicAdaptiveThinkingPluginPath,
-  openworkAnthropicToolSchemaPluginPath,
   openworkTitleRecoveryPluginPath,
-  openworkGatewayQuotaPluginPath,
   openworkOfficeAttachmentsPluginPath,
   openworkSpreadsheetsPluginPath,
   openworkChromeDevtoolsPluginPath,
@@ -67,21 +62,19 @@ export function buildOpenworkRuntimeConfigObjectFromSnapshot(
     const { managedPolicy, ...localConfig } = runtimeConfig;
     runtimeConfig = managedPolicy ? { ...localConfig, managedPolicy: desktopCapabilityConfig(managedPolicy) } : localConfig;
   }
-  const disabledProviders = runtimeDisabledProviderList(runtimeConfig);
+  const disabledProviders = runtimeDisabledProviderList(runtimeConfig).filter((id) => id === "ollama");
   const permissions = legacyExecutionPermissions(runtimeConfig.managedPolicy?.execution);
   const { managedPolicy: _managedPolicy, ...engineConfig } = runtimeConfig;
-  const provider = materializeLegacyFastProviders(runtimeProviderMap(runtimeConfig));
+  const existing = runtimeProviderMap(runtimeConfig).ollama;
+  const provider = { ollama: existing ?? { npm: "@ai-sdk/openai-compatible", name: "Ollama", options: { baseURL: "http://localhost:11434/v1" }, models: {} } };
   return {
     ...engineConfig,
-    ...(runtimeConfig.managedPolicy?.allowCustomProviders === false ? { enabled_providers: [
-      ...Object.keys(provider).filter((id) => /^(?:lpr_|ipr_|openwork$)/i.test(id)),
-      ...(runtimeConfig.managedPolicy.allowZenModel !== false ? ["opencode"] : []),
-    ] } : {}),
+    enabled_providers: ["ollama"],
     permission: { ...engineConfig.permission, ...permissions },
     default_agent: runtimeConfig.default_agent ?? "openwork",
     agent: {
       openwork: {
-        description: "OpenWork default agent",
+        description: "LSS Harness default agent",
         mode: "primary",
         temperature: 0.2,
         prompt: OPENWORK_AGENT_PROMPT,
@@ -105,15 +98,11 @@ export function buildOpenworkRuntimeConfigObjectFromSnapshot(
       // operating rules first, then the extensions plugin adds app-control
       // mechanics, live Connect steering, and the remote skill and Automation
       // catalogs, so rules precede state and state precedes data.
-      openworkCapabilitiesKnowledgePluginPath(),
       openworkExtensionsPreviewPluginPath(),
       openworkOfficeAttachmentsPluginPath(),
       openworkSpreadsheetsPluginPath(),
       openworkPdfAttachmentsPluginPath(),
-      openworkAnthropicAdaptiveThinkingPluginPath(),
-      openworkAnthropicToolSchemaPluginPath(),
       openworkTitleRecoveryPluginPath(),
-      openworkGatewayQuotaPluginPath(),
       ...runtimePluginList(runtimeConfig).filter((plugin) => !isManagedPolicyPlugin(plugin)),
     ],
     ...(disabledProviders.length ? { disabled_providers: disabledProviders } : {}),

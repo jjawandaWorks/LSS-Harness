@@ -94,7 +94,7 @@ const CONNECTION_ACTION_LABELS = {
   inspect_connection: "Inspect the connection",
   fix_provider: "Fix provider access",
   fix_network: "Fix network access",
-  contact_openwork: "Contact OpenWork support",
+  contact_openwork: "Contact LSS Harness support",
 }
 
 function isConnectionTool(toolName: string): boolean {
@@ -233,15 +233,15 @@ export function attributeChatToolError(errorText: string): ToolErrorAttribution 
   const providerCode = stringValue(diagnostic, "providerCode")
 
   if (
-    errorText.includes("OpenWork stopped waiting after")
+    errorText.includes("LSS Harness stopped waiting after")
     || /The capability call exceeded \d+(?:\.\d+)?s\b/.test(errorText)
     || code === "MCP_LIFECYCLE_DEADLINE"
     || code === "MCP_REQUEST_TIMEOUT"
     || category === "lifecycle_deadline"
   ) {
     return confirmed(
-      "OpenWork timeout",
-      "OpenWork created this deadline. The external operation may still have completed, so verify its state before retrying.",
+      "LSS Harness timeout",
+      "LSS Harness created this deadline. The external operation may still have completed, so verify its state before retrying.",
     )
   }
 
@@ -250,7 +250,7 @@ export function attributeChatToolError(errorText: string): ToolErrorAttribution 
     || code === "MCP_URL_BLOCKED"
     || code === "MCP_FETCH_FORBIDDEN_PORT"
   ) {
-    return confirmed("Blocked by OpenWork", "OpenWork blocked the request before it was sent.")
+    return confirmed("Blocked by LSS Harness", "LSS Harness blocked the request before it was sent.")
   }
 
   if (httpStatus !== undefined && (httpStatus < 200 || httpStatus >= 300)) {
@@ -288,7 +288,7 @@ export function attributeChatToolError(errorText: string): ToolErrorAttribution 
 /** End-user copy; attribution and raw provider payloads belong in details. */
 export function describeChatToolFailure(errorText: string): string {
   const attribution = attributeChatToolError(errorText)
-  if (attribution?.label === "Blocked by OpenWork") return "This action is blocked by your workspace settings."
+  if (attribution?.label === "Blocked by LSS Harness") return "This action is blocked by your workspace settings."
   if (/timeout|timed out|deadline|\b504\b/i.test(errorText)) return "The service didn’t respond in time. Check whether the action finished before trying again."
   if (/\b401\b|unauthorized|invalid[_ ]token|authentication required/i.test(errorText)) return "This connection needs attention. Check its sign-in settings."
   if (/\b403\b|forbidden|access[_ ]denied|insufficient[_ ]scope/i.test(errorText)) return "This connection doesn’t have access to the requested action."

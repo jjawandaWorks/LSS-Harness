@@ -19,12 +19,6 @@ extraResources:
     filter:
       - "*.js"
       - "*.wasm"
-  - from: ../../packages/docs
-    to: openwork-docs
-    filter:
-      - "**/*.md"
-      - "**/*.mdx"
-      - "docs.json"
 asar: true
 asarUnpack:
   - node_modules/.pnpm/@lydell+node-pty*/**
@@ -32,13 +26,8 @@ asarUnpack:
 npmRebuild: false
 afterPack: scripts/electron-after-pack.cjs
 afterSign: scripts/electron-after-sign.cjs
-publish:
-  - provider: github
-    owner: different-ai
-    repo: openwork
-    releaseType: release
 mac:
-  icon: resources/icons/icon.icns
+  icon: resources/icons/lss/icon.icns
   category: public.app-category.developer-tools
   hardenedRuntime: true
   gatekeeperAssess: false
@@ -46,7 +35,7 @@ mac:
   entitlements: build/entitlements.mac.plist
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
-    NSMicrophoneUsageDescription: OpenWork uses the microphone when you allow a page to access audio input.
+    NSMicrophoneUsageDescription: LSS Harness uses the microphone when you allow a page to access audio input.
   extraResources:
     - from: resources/sidecars
       to: sidecars
@@ -68,10 +57,10 @@ mac:
     - dmg
     - zip
 linux:
-  icon: resources/icons/linux
+  icon: resources/icons/lss
   syncDesktopName: true
   extraResources:
-    - from: resources/icons/linux
+    - from: resources/icons/lss
       to: icons/linux
       filter:
         - "*.png"
@@ -91,9 +80,9 @@ linux:
     - AppImage
     - tar.gz
 win:
-  icon: resources/icons/icon.ico
+  icon: resources/icons/lss/icon.ico
   extraResources:
-    - from: resources/icons/icon.png
+    - from: resources/icons/lss/icon.png
       to: icons/icon.png
     - from: resources/sidecars
       to: sidecars

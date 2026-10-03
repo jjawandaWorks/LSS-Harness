@@ -1,6 +1,6 @@
 import { OpenworkServerError } from "./openwork-server"
 
-// Catalog discovery can fail while OpenWork Connect is still warming up; that
+// Catalog discovery can fail while LSS Harness Connect is still warming up; that
 // is not evidence the connection or the App is gone.
 const TRANSIENT_MCP_APP_RESOLUTION_CODES = new Set(["server_unavailable", "mcp_unreachable", "connect_catalog_discovery_unavailable", "connect_catalog_missing_app_host_auth"])
 const MCP_APP_RESOLUTION_RETRY_DELAYS_MS = [1_000, 3_000]

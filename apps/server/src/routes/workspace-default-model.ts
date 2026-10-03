@@ -39,6 +39,7 @@ export function registerWorkspaceDefaultModelRoutes(options: RegisterWorkspaceDe
         issues: parsed.error.issues.map((issue) => ({ path: issue.path.join("."), message: issue.message })),
       });
     }
+    if (parsed.data.model && parsed.data.model.providerID !== "ollama") throw new ApiError(403, "ollama_only", "LSS Harness only supports Ollama models.");
     return jsonResponse(await writeWorkspaceDefaultModel(config, workspace.id, parsed.data.model));
   });
 }

@@ -162,7 +162,7 @@ export function CloudProvidersView({
     const importedRows: CloudProviderRow[] = Object.values(importedCloudProviders).filter((provider) => !cloudOrgProviders.some((live) => live.id === provider.cloudProviderId)).map((provider) => ({
       key: `imported:${provider.cloudProviderId}`, cloudProviderId: provider.cloudProviderId, provider: null, imported: provider, name: provider.name,
       status: resolveCloudProviderRowStatus({ imported: true, outOfSync: false, allowed: isProviderAllowedByDesktopPolicy({ providerId: provider.providerId, restrictToCloud, checkRestriction: checkDesktopAppRestriction }), importsUnavailable, needsCredential: false, needsServer: false, syncError: null, reloadPending: serverSync?.reloadPending, skippedByServer: Boolean(serverSync?.skippedProviders[provider.cloudProviderId]) }),
-      detail: provider.source === "openwork_gateway" ? "OpenWork Gateway · Organization credential" : "Managed in Den",
+      detail: provider.source === "openwork_gateway" ? "LSS Harness Gateway · Organization credential" : "Managed in Den",
     }));
     const combined = [...liveRows, ...importedRows];
     return combined.filter((row) => !gatewayConnectProviders.some((provider) => provider.cloudProviderId === row.cloudProviderId)).map<CloudProviderRow>((row) => serverSync?.lastRun?.status === "failed" ? { ...row, status: "unavailable", detail: "Could not verify with Den. Sync again to check access." } : row);
@@ -218,7 +218,7 @@ export function CloudProvidersView({
       <SettingsNotice>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div><h3 className="text-sm font-medium">From your organization</h3><span className="text-xs text-muted-foreground">No organization yet. Sign in to see what your organization already provides. Your keys on this device keep working either way.</span></div>
-          <Button size="sm" onClick={onOpenAccount}>Sign in to OpenWork</Button>
+          <Button size="sm" onClick={onOpenAccount}>Sign in to LSS Harness</Button>
         </div>
       </SettingsNotice>
     );

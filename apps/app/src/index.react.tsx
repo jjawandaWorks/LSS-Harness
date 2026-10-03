@@ -33,7 +33,7 @@ if (!root) {
 // Keep one startup promise across StrictMode renders. Rejections now reach the
 // error boundary, and pending bootstrap IPC no longer leaves an empty root.
 const startup = Promise.resolve().then(async () => {
-  startWebErrorMonitoring();
+
   bootstrapTheme();
   initLocale();
   startDeepLinkBridge();

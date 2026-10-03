@@ -62,7 +62,7 @@ function canonicalize(value: unknown): string {
  * losslessly, not hashed, so no crafted admin edit can collide with a prior
  * identity — and an edit to any of them discards this user's stored approval
  * and auto-launch: the changed app must be run manually again. The one
- * exception is the revision of an App built in OpenWork: each update is a new
+ * exception is the revision of an App built in LSS Harness: each update is a new
  * revision of the same App, so consent follows the App, whose id stays part of
  * the identity.
  */

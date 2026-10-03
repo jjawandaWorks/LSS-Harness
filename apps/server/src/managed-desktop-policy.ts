@@ -256,8 +256,6 @@ class ManagedDesktopPolicy {
   private async assertProviderUse(request: Request, path: string, engine: boolean): Promise<void> {
     if (!engine || ["GET", "HEAD", "OPTIONS"].includes(request.method)) return;
     // Without a known restrictive policy there is nothing to check, so sends are never read or delayed.
-    const policy = this.knownPolicy();
-    if (policy?.allowCustomProviders !== false) return;
     const enginePath = decodeURIComponent(path).replace(/^\/opencode2?/, "").replace(/^\/api/, "");
     const providerID = enginePath.match(/^\/auth\/([^/]+)(?:\/|$)/)?.[1]
       ?? enginePath.match(/^\/provider\/([^/]+)\/oauth\/(?:authorize|callback)$/)?.[1];
@@ -279,22 +277,16 @@ class ManagedDesktopPolicy {
   }
   private assertModelAccess(action: ManagedPolicyAction, input: Record<string, unknown>): void {
     if (action !== "provider" && action !== "model") return;
-    const policy = this.knownPolicy();
-    if (policy?.allowCustomProviders !== false) return;
-    const ids = Array.isArray(input.providerIDs) ? input.providerIDs.filter((id): id is string => typeof id === "string")
-      : typeof input.providerID === "string" ? [input.providerID] : [];
-    for (const id of ids) {
-      // OpenCode Zen is not part of model access; it stays as it is today.
-      if (id.toLowerCase() === "opencode") continue;
-      if (!MANAGED_PROVIDER.test(id)) {
-        throw action === "model"
-          ? new ApiError(403, "organization_model_denied", "Choose an AI model assigned by your organization.")
-          : new ApiError(403, "organization_policy_denied", "Your organization only allows its assigned AI providers.");
-      }
+    const requested = Array.isArray(input.providerIDs) ? input.providerIDs : [input.providerID];
+    if (requested.some((id) => typeof id === "string" && id !== "ollama")) {
+      throw new ApiError(403, "ollama_only", "LSS Harness only supports Ollama models.");
     }
+    return;
+
   }
   async assert(action: ManagedPolicyAction, input: Record<string, unknown> = {}): Promise<void> {
-    if (!DESKTOP_POLICY_ENFORCEMENT_ENABLED) return this.assertModelAccess(action, input);
+    this.assertModelAccess(action, input);
+    if (!DESKTOP_POLICY_ENFORCEMENT_ENABLED) return;
     const generation = this.generation;
     const policy = await this.installedPolicy(generation);
     this.identityChanged(generation);

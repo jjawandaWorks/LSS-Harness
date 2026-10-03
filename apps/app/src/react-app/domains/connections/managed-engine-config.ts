@@ -52,7 +52,7 @@ export type ReadManagedDisabledProvidersOptions = {
  * The providers hidden through `disabled_providers` (for example a
  * disconnected OpenCode Zen). OpenCode v1 reports them in its config. OpenCode
  * v2 keeps engine config private, so read the same shared list from the
- * OpenWork server instead of treating it as empty and overwriting it.
+ * LSS Harness server instead of treating it as empty and overwriting it.
  */
 export async function readManagedDisabledProviders(
   options: ReadManagedDisabledProvidersOptions,

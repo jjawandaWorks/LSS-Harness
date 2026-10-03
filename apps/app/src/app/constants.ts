@@ -19,8 +19,8 @@ export { LANGUAGE_PREF_KEY } from "../i18n";
 export const HIDE_TITLEBAR_PREF_KEY = "openwork.hideTitlebar";
 
 export const DEFAULT_MODEL: ModelRef = {
-  providerID: "opencode",
-  modelID: "big-pickle",
+  providerID: "ollama",
+  modelID: "qwen2.5-coder:7b",
 };
 
 export const SUGGESTED_PLUGINS: SuggestedPlugin[] = [];
@@ -38,9 +38,9 @@ export type McpDirectoryInfo = {
   type?: "remote" | "local";
   command?: string[];
   oauth: boolean;
-  /** Route OAuth through the local OpenWork gateway instead of delegating it to OpenCode. */
+  /** Route OAuth through the local LSS Harness gateway instead of delegating it to OpenCode. */
   managedOAuth?: boolean;
-  /** Identifies MCP entries owned by OpenWork Connect instead of workspace configuration. */
+  /** Identifies MCP entries owned by LSS Harness Connect instead of workspace configuration. */
   managedBy?: "openwork-connect";
   oauthConfig?: {
     clientId?: string;
@@ -55,9 +55,9 @@ export type McpDirectoryInfo = {
   iconSrc?: string;
   /** Prompt inserted from the composer extension picker. */
   composerPrompt?: string;
-  /** Whether OpenWork should show this extension as enabled before user setup. */
+  /** Whether LSS Harness should show this extension as enabled before user setup. */
   defaultEnabled?: boolean;
-  /** Whether OpenWork should hide this extension from the default catalog view. */
+  /** Whether LSS Harness should hide this extension from the default catalog view. */
   defaultHidden?: boolean;
   /** Whether this extension is still in preview. */
   preview?: boolean;
@@ -96,104 +96,7 @@ export function getMcpServerName(entry: McpDirectoryInfo): string {
   return canonicalMcpServerName(entry.name);
 }
 
-export const MCP_QUICK_CONNECT: McpDirectoryInfo[] = [
-  {
-    get name() { return t("mcp.quick_connect_notion_title"); },
-    serverName: "notion",
-    get description() { return t("mcp.quick_connect_notion_desc"); },
-    url: "https://mcp.notion.com/mcp",
-    type: "remote",
-    oauth: true,
-    kind: "mcp",
-    iconSlug: "notion",
-    iconSrc: "/ext-notion.svg",
-  },
-  {
-    get name() { return t("mcp.quick_connect_linear_title"); },
-    serverName: "linear",
-    get description() { return t("mcp.quick_connect_linear_desc"); },
-    url: "https://mcp.linear.app/mcp",
-    type: "remote",
-    oauth: true,
-    kind: "mcp",
-    iconSlug: "linear",
-    iconSrc: "/ext-linear.svg",
-  },
-  {
-    get name() { return t("mcp.quick_connect_sentry_title"); },
-    serverName: "sentry",
-    get description() { return t("mcp.quick_connect_sentry_desc"); },
-    url: "https://mcp.sentry.dev/mcp",
-    type: "remote",
-    oauth: true,
-    kind: "mcp",
-    iconSlug: "sentry",
-    iconSrc: "/ext-sentry.svg",
-  },
-  {
-    get name() { return t("mcp.quick_connect_stripe_title"); },
-    serverName: "stripe",
-    get description() { return t("mcp.quick_connect_stripe_desc"); },
-    url: "https://mcp.stripe.com",
-    type: "remote",
-    oauth: true,
-    kind: "mcp",
-    iconSlug: "stripe",
-    iconSrc: "/ext-stripe.svg",
-  },
-  {
-    get name() { return t("mcp.quick_connect_context7_title"); },
-    serverName: "context7",
-    get description() { return t("mcp.quick_connect_context7_desc"); },
-    url: "https://mcp.context7.com/mcp",
-    type: "remote",
-    oauth: false,
-    kind: "mcp",
-    iconSlug: "semanticscholar",
-    iconSrc: "/ext-context7.svg",
-  },
-  {
-    get name() { return t("mcp.quick_connect_openwork_cloud_title"); },
-    serverName: "openwork-cloud",
-    get description() { return t("mcp.quick_connect_openwork_cloud_desc"); },
-    get url() {
-      // The desktop app connects to the minimal, harness-facing surface
-      // (/mcp/agent: search_capabilities + execute_capability only), not the
-      // full catalog at bare /mcp. getDenMcpUrl heals stale web-app origins;
-      // never at the web app's root (see
-      // packages/docs/cloud/run-in-the-cloud/cloud-mcp.mdx).
-      try {
-        return `${getDenMcpUrl()}/agent`;
-      } catch {
-        return "https://api.app.openworklabs.com/mcp/agent";
-      }
-    },
-    type: "remote",
-    oauth: true,
-    managedBy: "openwork-connect",
-    kind: "mcp",
-    iconSrc: "/openwork-mark.svg",
-    // Auto-managed by the signed-in cloud reconciler (syncCloudControlMcp):
-    // configured + enabled while signed in to OpenWork Cloud. Hidden from the
-    // default catalog; "Show hidden" reveals it.
-    defaultHidden: true,
-  },
-  {
-    get name() { return t("mcp.quick_connect_openwork_ui_title"); },
-    serverName: "openwork-ui",
-    get description() { return t("mcp.quick_connect_openwork_ui_desc"); },
-    type: "local",
-    // Dev builds replace this with the local checkout path before writing config.
-    command: ["npx", "-y", "openwork-ui-mcp"],
-    oauth: false,
-    kind: "ui-control",
-    iconSrc: "/openwork-mark.svg",
-    // Internal UI-control surface for agents driving the desktop app. Hidden
-    // from the default catalog; "Show hidden" reveals it.
-    defaultHidden: true,
-  },
-  ...BUILT_IN_OPENWORK_EXTENSION_MANIFESTS.map(extensionManifestToDirectoryInfo),
-];
+export const MCP_QUICK_CONNECT: McpDirectoryInfo[] = BUILT_IN_OPENWORK_EXTENSION_MANIFESTS.map(extensionManifestToDirectoryInfo);
 
 export const OPENWORK_EXTENSION_CATALOG = MCP_QUICK_CONNECT.filter((entry) => entry.kind === "extension");
 

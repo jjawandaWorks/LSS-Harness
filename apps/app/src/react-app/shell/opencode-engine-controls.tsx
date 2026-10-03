@@ -72,7 +72,7 @@ export function useOpencodeEngineControls(client: OpencodeEngineClient | null | 
   }));
   items.push({ id: "opencode.migrate-v2", title: "Migrate chats to OpenCode v2", keywords: ["migration", "history", "import", "v1", "v2"],
     group: "actions", disabled: disabled || !status?.migration,
-    detail: blockedReason ?? (!status?.migration ? "Update OpenWork to migrate chats." : undefined),
+    detail: blockedReason ?? (!status?.migration ? "Update LSS Harness to migrate chats." : undefined),
     action: openMigration });
   return { status, selected, disabled, blockedReason, busy, migrating, error, select, items, message: engineMigrationMessage(migration), openMigration };
 }

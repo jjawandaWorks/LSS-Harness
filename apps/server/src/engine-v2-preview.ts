@@ -589,7 +589,7 @@ export function createEngineV2Preview(options: {
     const providerMap = { ...await localProviderDefinitions(config, localKeys, configured), ...configured };
     const credentials = new Map((await options.env?.list() ?? []).map((entry) => [entry.key, entry.value]));
     const mapped = mapRuntimeProvidersToV2Specs(providerMap, credentials, localKeys);
-    const specs = mapped.specs.filter((spec) => !disabled.has(spec.id));
+    const specs = mapped.specs.filter((spec) => spec.id === "ollama" && !disabled.has(spec.id));
     const nextMirroredProviderIds = specs.map((spec) => spec.id);
     await active.setProviders(specs, disabledProviderIds);
     mirroredSpecs = specs;

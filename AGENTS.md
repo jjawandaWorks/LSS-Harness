@@ -1,26 +1,17 @@
 # AGENTS.md
 
-OpenWork is a free, open-source desktop app (macOS, Windows, Linux) for doing
-work with AI agents on your own files — an open-source alternative to Claude
-Cowork and Codex, built on OpenCode, running any model from 50+ providers.
-Desktop mode keeps files local; cloud is optional. Three surfaces live in this
-repo:
+LSS Harness is a local desktop AI workspace derived from different-ai/openwork.
+Ollama is the only inference provider. There are no accounts, subscription plans,
+hosted inference, company telemetry, or company updates in the app.
 
-* **Desktop app** (`apps/`, `packages/`) — local-first agent workspace: chat on
-  files, skills, browser automation, scheduled automations, Anthropic-compatible
-  plugins.
-* **OpenWork MCP gateway** (`ee/apps/den-api`) — one URL
-  (`api.openworklabs.com/mcp/agent`) that brings org-assigned skills, plugins,
-  and connections (Google Workspace, Microsoft 365, MCPs) into Codex, Claude
-  Code, Cursor, or any MCP client via `search_capabilities` /
-  `execute_capability`.
-* **OpenWork Den** (`ee/apps/den-*`) — the org control plane: provision
-  inference, manage teams and access, set desktop policies, publish skills and
-  plugins through marketplaces.
+* Desktop shell: `apps/desktop`.
+* React app and local model setup: `apps/app`.
+* Local agent/workspace server: `apps/server`.
+* Shared engine contracts and utilities: `packages/`.
 
-The app consumes OpenWork server surfaces (self-hosted or hosted) rather than
-inventing parallel behavior. Anything OpenCode can do is available in OpenWork,
-even before a dedicated UI exists.
+Preserve required upstream license and copyright notices. Keep provider
+restrictions enforced in both engine versions and in server request handling.
+Run `pnpm test:ollama`, app/server typechecks, and `pnpm build:ui` for provider changes.
 
 ## Confidentiality (hard rule — this repo is public)
 

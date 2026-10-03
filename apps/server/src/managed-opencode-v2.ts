@@ -113,7 +113,7 @@ export function renderOpencodeV2Config(input: {
   contextTools?: { url: string; token: string };
 }): Record<string, unknown> {
   const disabled = new Set(input.disabledProviderIds ?? []);
-  const enabledProviders = input.providers.filter((provider) => !disabled.has(provider.id));
+  const enabledProviders = input.providers.filter((provider) => provider.id === "ollama" && !disabled.has(provider.id));
   const providerConfig: Record<string, unknown> = {};
   for (const provider of enabledProviders) {
     const models: Record<string, unknown> = {};
@@ -172,9 +172,9 @@ export function renderOpencodeV2Config(input: {
       package: pathToFileURL(input.gatewayQuotaPluginDirectory).href,
       options: { providers: gatewayProviders },
     }] : []),
-    ...(Object.keys(filters).length && input.providerFiltersPluginDirectory ? [{
+    ...(input.providerFiltersPluginDirectory ? [{
       package: pathToFileURL(input.providerFiltersPluginDirectory).href,
-      options: { providers: filters },
+      options: { providers: filters, allowedProviders: ["ollama"] },
     }] : []),
     ...(input.mcpResultsPluginDirectory ? [{ package: pathToFileURL(input.mcpResultsPluginDirectory).href }] : []),
   ];

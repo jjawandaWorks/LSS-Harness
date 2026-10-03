@@ -38,7 +38,7 @@ export function markExplicitModelChoice() {
 }
 export type ModelSource = "gateway" | "local" | "organization";
 export const MODEL_SOURCE_LABELS: Record<ModelSource, string> = {
-  gateway: "OpenWork Gateway", local: "Local", organization: "Organization",
+  gateway: "LSS Harness Gateway", local: "Local", organization: "Organization",
 };
 
 export function isAutoModel(model: ModelRef | null | undefined) {
@@ -64,7 +64,7 @@ export function publicModelTitle(model: ModelRef & { title?: string }): string |
 }
 
 export function modelSubtitle(model: ModelOption, exhausted = false) {
-  if (isAutoModel(model)) return exhausted ? "Limit used up" : "OpenWork picks the model";
+  if (isAutoModel(model)) return exhausted ? "Limit used up" : "LSS Harness picks the model";
   // Gateway models assigned to the member that wait on their own provider sign-in.
   if (model.gatewayAuthorization) return [model.description?.trim(), "Sign-in required"].filter(Boolean).join(" · ");
   return [model.description?.trim(), model.organizationPinOrder !== undefined ? "pinned by your org" : null].filter(Boolean).join(" · ");
@@ -139,7 +139,7 @@ export function modelGroups(options: readonly ModelOption[], personal: readonly 
   };
   add("Pinned", orderedModelPins(available, personal));
   add("Recent", recent.flatMap((model) => available.filter((option) => modelRefKey(option) === modelRefKey(model))));
-  add("OpenWork Models", available.filter((option) => option.providerID === "openwork" || option.providerID === AUTO_PROVIDER_ID));
+  add("LSS Harness Models", available.filter((option) => option.providerID === "openwork" || option.providerID === AUTO_PROVIDER_ID));
   const providers = [...new Set(available.map((option) => option.providerID))].sort((a, b) => {
     const name = (id: string) => available.find((option) => option.providerID === id)?.description || id;
     return name(a).localeCompare(name(b));

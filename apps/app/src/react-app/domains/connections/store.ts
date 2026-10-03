@@ -364,7 +364,7 @@ export function createConnectionsStore(options: {
     });
 
     if (hasOpenworkTarget && !canTryOpenworkServer) {
-      throw new Error("OpenWork server cannot read MCP config for this workspace.");
+      throw new Error("LSS Harness server cannot read MCP config for this workspace.");
     }
 
     if (!canTryOpenworkServer || !openworkClient || !openworkWorkspaceId) return null;
@@ -381,7 +381,7 @@ export function createConnectionsStore(options: {
         && ((command.length === 2 && command[1] === "mcp") || (command.length === 3 && command[1] === "relay"))) {
         const currentCommand = await resolveDesktopCommand("getComputerUseMcpCommand", false);
         const bundled = currentCommand && (command[0] === currentCommand[0]
-          || command[0].endsWith("/OpenWork Computer Use.app/Contents/MacOS/ComputerUse"));
+          || command[0].endsWith("/LSS Harness Computer Use.app/Contents/MacOS/ComputerUse"));
         if (bundled && JSON.stringify(command) !== JSON.stringify(currentCommand)) {
           const writable = await resolveWritableOpenworkTarget();
           if (writable.canUseOpenworkServer && writable.openworkClient && writable.openworkWorkspaceId === openworkWorkspaceId
@@ -450,7 +450,7 @@ export function createConnectionsStore(options: {
       if (!fallbackOnError) {
         throw error instanceof Error
           ? error
-          : new Error("Computer Use helper app is unavailable. Restart OpenWork or reinstall the app.");
+          : new Error("Computer Use helper app is unavailable. Restart LSS Harness or reinstall the app.");
       }
       // Fall through to the published package command in the manifest/catalog.
     }
@@ -461,7 +461,7 @@ export function createConnectionsStore(options: {
     const mcpResource = extensionResource(entry.extensionManifest, "mcp");
     if (mcpResource?.localCommandRef === "openwork.computerUseMcp") {
       const command = await resolveDesktopCommand("getComputerUseMcpCommand", false);
-      if (!command) throw new Error("Computer Use requires the bundled OpenWork helper on macOS.");
+      if (!command) throw new Error("Computer Use requires the bundled LSS Harness helper on macOS.");
       return command;
     }
     if (mcpResource?.localCommandRef === "openwork.uiMcp" || entry.serverName === "openwork-ui") {
@@ -575,7 +575,7 @@ export function createConnectionsStore(options: {
       if (!isCurrentRefresh()) return;
       mutateState((current) => ({
         ...current,
-        mcpStatus: "OpenWork server unavailable. MCP config is read-only.",
+        mcpStatus: "LSS Harness server unavailable. MCP config is read-only.",
         mcpServers: [],
         mcpStatuses: {},
       }));
@@ -627,7 +627,7 @@ export function createConnectionsStore(options: {
         ...globalServers.filter((entry) => !projectNames.has(entry.name)),
         ...projectServers,
       ];
-      // Runtime-DB MCPs (source "config.remote") only exist on the OpenWork
+      // Runtime-DB MCPs (source "config.remote") only exist on the LSS Harness
       // server. Keep the last-known entries instead of silently dropping them
       // while the server is briefly unreachable (startup race) — otherwise
       // enabled MCPs like openwork-ui render as "off".
@@ -732,7 +732,7 @@ export function createConnectionsStore(options: {
       await resolveWritableOpenworkTarget();
 
     if (isRemoteWorkspace && !canUseOpenworkServer) {
-      const error = "OpenWork server unavailable. MCP config is read-only.";
+      const error = "LSS Harness server unavailable. MCP config is read-only.";
       setStateField("mcpStatus", error);
       finishPerf(options.developerMode(), "mcp.connect", "blocked", startedAt, {
         reason: "openwork-server-unavailable",
@@ -741,7 +741,7 @@ export function createConnectionsStore(options: {
     }
 
     if (hasOpenworkTarget && !canUseOpenworkServer) {
-      const error = "OpenWork server MCP config is read-only.";
+      const error = "LSS Harness server MCP config is read-only.";
       setStateField("mcpStatus", error);
       finishPerf(options.developerMode(), "mcp.connect", "blocked", startedAt, {
         reason: "openwork-server-read-only",
@@ -804,14 +804,14 @@ export function createConnectionsStore(options: {
 
       if (entry.managedBy === "openwork-connect") {
         if (slug !== CLOUD_MCP_SERVER_NAME) {
-          throw new Error("OpenWork Connect MCP metadata is invalid.");
+          throw new Error("LSS Harness Connect MCP metadata is invalid.");
         }
         if (!canUseOpenworkServer || !openworkClient || !openworkWorkspaceId) {
-          throw new Error("OpenWork server is required to repair agent access to connected services.");
+          throw new Error("LSS Harness server is required to repair agent access to connected services.");
         }
         const context = await resolveCloudMcpOperationContext(null);
         if (!context) {
-          throw new Error("Sign in to OpenWork Cloud and choose an organization first.");
+          throw new Error("Sign in to LSS Harness Cloud and choose an organization first.");
         }
         clearCloudMcpDisabledIntent(context);
         const result = await runOpenworkCloudMcpReconciler({
@@ -849,13 +849,13 @@ export function createConnectionsStore(options: {
 
       if (entry.managedOAuth) {
         if (isRemoteWorkspace || !isDesktopRuntime()) {
-          throw new Error("OpenWork-managed MCP OAuth is currently available for local desktop workspaces only.");
+          throw new Error("LSS Harness-managed MCP OAuth is currently available for local desktop workspaces only.");
         }
         if (entryType !== "remote" || !entry.url) {
-          throw new Error("OpenWork-managed OAuth requires a remote MCP URL.");
+          throw new Error("LSS Harness-managed OAuth requires a remote MCP URL.");
         }
         if (!canUseOpenworkServer || !openworkClient || !openworkWorkspaceId) {
-          throw new Error("The local OpenWork server is required for managed MCP sign-in.");
+          throw new Error("The local LSS Harness server is required for managed MCP sign-in.");
         }
         const result = await openworkClient.addManagedMcp(openworkWorkspaceId, {
           name: slug,
@@ -913,7 +913,7 @@ export function createConnectionsStore(options: {
 
       if (entryType === "remote") {
         if (!resolvedUrl) {
-          throw new Error("Missing MCP URL. Is the OpenWork desktop app running?");
+          throw new Error("Missing MCP URL. Is the LSS Harness desktop app running?");
         }
         mcpEntryConfig["url"] = resolvedUrl;
         if (resolvedHeaders) {
@@ -989,11 +989,11 @@ export function createConnectionsStore(options: {
       }
 
       if (canUseOpenworkServer && openworkClient && openworkWorkspaceId) {
-        // The OpenWork server is the source of truth for workspace-scoped MCP
+        // The LSS Harness server is the source of truth for workspace-scoped MCP
         // config in the React port. Avoid also calling the OpenCode SDK's MCP
         // hot-add endpoint here: when the SDK client is rooted at the aggregate
         // `/opencode` route it can resolve to an internal `local_*` workspace
-        // id that the OpenWork server does not expose, producing a confusing
+        // id that the LSS Harness server does not expose, producing a confusing
         // `workspace_not_found` after the config write already succeeded.
       } else {
         if (!activeClient || !resolvedProjectDir) {
@@ -1084,7 +1084,7 @@ export function createConnectionsStore(options: {
 
   /**
    * Background reconciliation for the Den cloud MCP: when the desktop is
-   * signed in to OpenWork Cloud with an active org, keep the
+   * signed in to LSS Harness Cloud with an active org, keep the
    * `openwork-cloud` MCP entry configured with a fresh first-party token.
    * Quiet by design — a failed mint never opens the OAuth modal.
    *
@@ -1160,7 +1160,7 @@ export function createConnectionsStore(options: {
       try {
         const { openworkClient, openworkWorkspaceId, canUseOpenworkServer } = await resolveWritableOpenworkTarget();
         if (!canUseOpenworkServer || !openworkClient || !openworkWorkspaceId) {
-          throw new Error("The local OpenWork server is required for managed MCP sign-in.");
+          throw new Error("The local LSS Harness server is required for managed MCP sign-in.");
         }
         mutateState((current) => ({ ...current, mcpStatus: null, mcpConnectingName: entry.name }));
         const result = await openworkClient.connectManagedMcp(openworkWorkspaceId, entry.name);
@@ -1210,12 +1210,12 @@ export function createConnectionsStore(options: {
       await resolveWritableOpenworkTarget();
 
     if (isRemoteWorkspace && !canUseOpenworkServer) {
-      setStateField("mcpStatus", "OpenWork server unavailable. MCP auth is read-only.");
+      setStateField("mcpStatus", "LSS Harness server unavailable. MCP auth is read-only.");
       return;
     }
 
     if (hasOpenworkTarget && !canUseOpenworkServer) {
-      setStateField("mcpStatus", "OpenWork server MCP auth is read-only.");
+      setStateField("mcpStatus", "LSS Harness server MCP auth is read-only.");
       return;
     }
 
@@ -1276,7 +1276,7 @@ export function createConnectionsStore(options: {
         await openworkClient.removeMcp(openworkWorkspaceId, name);
       } else {
         if (hasOpenworkTarget) {
-          setStateField("mcpStatus", "OpenWork server MCP config is read-only.");
+          setStateField("mcpStatus", "LSS Harness server MCP config is read-only.");
           return;
         }
         const projectDir = options.projectDir().trim();

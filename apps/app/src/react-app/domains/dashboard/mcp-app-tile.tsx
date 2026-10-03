@@ -121,7 +121,7 @@ function launchArgumentsSignature(argumentsValue: Record<string, unknown>) {
     : value);
 }
 
-// A new revision of an App built in OpenWork keeps the tile mounted at its size;
+// A new revision of an App built in LSS Harness keeps the tile mounted at its size;
 // the launch effect then opens the new revision in place.
 function dashboardEntryIdentity(entry: DashboardMcpAppEntry, signature: string) {
   return JSON.stringify([entry.id, entry.connectionId, entry.serverName, entry.toolName, mcpAppResourceIdentity(entry.resourceUri, entry.connectionId), entry.projectedToolName, signature]);
@@ -445,7 +445,7 @@ function McpAppTileContent({
           if (!target) return { phase: "error", message: "This tool no longer advertises an interactive artifact." };
           const { endpoint, app } = target;
           attempt.endpoint = endpoint;
-          if (!app.launchId) throw new OpenworkServerError(422, "missing_launch_context", "This artifact has no live launch context. Update OpenWork and run the tile again.");
+          if (!app.launchId) throw new OpenworkServerError(422, "missing_launch_context", "This artifact has no live launch context. Update LSS Harness and run the tile again.");
           acquiredLaunchId = app.launchId;
           ownedLaunches.current.set(app.launchId, endpoint);
           const request = {

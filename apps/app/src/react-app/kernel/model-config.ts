@@ -48,7 +48,7 @@ function parseWorkspaceDefault(raw: string | null): WorkspaceDefaultModel | null
     const value: unknown = raw ? JSON.parse(raw) : null;
     if (!value || typeof value !== "object" || !("model" in value)) return null;
     const model = parseStoredModel(value.model);
-    if (!model?.providerID || !model.modelID) return null;
+    if (model?.providerID !== "ollama" || !model.modelID) return null;
     const variant = "variant" in value && typeof value.variant === "string" ? normalizeModelBehaviorValue(value.variant) : null;
     return { model, variant };
   } catch { return null; }
@@ -115,11 +115,11 @@ const normalizeVariantOverride = (value: unknown) => {
 };
 
 const parseStoredModel = (value: unknown) => {
-  if (typeof value === "string") return parseModelRef(value);
+  if (typeof value === "string") { const model = parseModelRef(value); return model?.providerID === "ollama" ? model : null; }
   if (!value || typeof value !== "object") return null;
   const record = value as Record<string, unknown>;
   if (
-    typeof record.providerID === "string" &&
+    record.providerID === "ollama" &&
     typeof record.modelID === "string"
   ) {
     return { providerID: record.providerID, modelID: record.modelID };
@@ -223,14 +223,15 @@ export function readStoredDefaultModel(): ModelRef {
   if (typeof window === "undefined") return DEFAULT_MODEL;
   try {
     const stored = window.localStorage.getItem(MODEL_PREF_KEY);
-    return parseModelRef(stored) ?? DEFAULT_MODEL;
+    const model = parseModelRef(stored);
+    return model?.providerID === "ollama" ? model : DEFAULT_MODEL;
   } catch {
     return DEFAULT_MODEL;
   }
 }
 
 export function writeStoredDefaultModel(model: ModelRef): void {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined" || model.providerID !== "ollama") return;
   try {
     const value = formatModelRef(model);
     if (window.localStorage.getItem(MODEL_PREF_KEY) === value) return;

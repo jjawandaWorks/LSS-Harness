@@ -15,7 +15,7 @@ export async function readLocalProviderApiKeys(path = join(opencodeDataDirs()[0]
     throw new Error("Could not read local provider credentials");
   }
   return new Map(record(value) ? Object.entries(value).flatMap(([id, auth]) =>
-    record(auth) && auth.type === "api" && typeof auth.key === "string" && auth.key.trim()
+    id === "ollama" && record(auth) && auth.type === "api" && typeof auth.key === "string" && auth.key.trim()
       ? [[id, auth.key]] : []) : []);
 }
 

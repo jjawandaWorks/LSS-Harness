@@ -136,7 +136,7 @@ export async function exchangeHandoffAndSignIn(
   grant: string,
   options: ExchangeHandoffOptions,
 ): Promise<ExchangeHandoffResult> {
-  const fallback = options.fallbackErrorMessage ?? "Failed to sign in to OpenWork Cloud.";
+  const fallback = options.fallbackErrorMessage ?? "Failed to sign in to LSS Harness Cloud.";
   const attempt = ++handoffAttemptCounter;
 
   const fail = (

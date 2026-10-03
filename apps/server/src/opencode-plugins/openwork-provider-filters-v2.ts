@@ -4,7 +4,7 @@ type Catalog = {
   model: { remove(provider: string, model: string): void };
 };
 type Context = {
-  options: { providers?: Record<string, Rule> };
+  options: { providers?: Record<string, Rule>; allowedProviders?: string[] };
   catalog: { transform(callback: (catalog: Catalog) => void): Promise<{ dispose(): Promise<void> }> };
 };
 
@@ -16,6 +16,10 @@ export default {
     const registration = await context.catalog.transform(catalog => {
       for (const { provider, models } of catalog.provider.list()) {
         const rule = context.options.providers?.[provider.id];
+        if (context.options.allowedProviders && !context.options.allowedProviders.includes(provider.id)) {
+          for (const id of models.keys()) catalog.model.remove(provider.id, id);
+          continue;
+        }
         if (!rule) continue;
         for (const id of models.keys()) {
           if ((rule.whitelist !== undefined && !rule.whitelist.includes(id)) || rule.blacklist?.includes(id)) {

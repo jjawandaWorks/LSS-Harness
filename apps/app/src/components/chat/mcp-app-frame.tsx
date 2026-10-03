@@ -414,14 +414,14 @@ export function McpAppSandboxView({ origin, app, resolveLiveActions, toolName, i
         checkpoints: [...checkpoints],
         ...(sandboxDocument ? { sandboxDocument } : {}),
       }
-      console.error(`[OpenWork MCP App] ${code}`, diagnostic)
+      console.error(`[LSS Harness MCP App] ${code}`, diagnostic)
       setError(diagnostic)
       onErrorRef.current?.()
     }
     checkpoint("resource-resolved")
     if (!readOnly && !app.launchId) {
       fail("MCP_APP_LAUNCH_CONTEXT_MISSING", "resource-resolution", null,
-        "This artifact has no live launch context. Update OpenWork and reopen the artifact before using its actions.")
+        "This artifact has no live launch context. Update LSS Harness and reopen the artifact before using its actions.")
       return
     }
     const sandbox = openworkServerClient.mcpAppSandbox(app, window.location.origin)
@@ -430,14 +430,14 @@ export function McpAppSandboxView({ origin, app, resolveLiveActions, toolName, i
         "MCP_APP_SANDBOX_ORIGIN_INVALID",
         "sandbox-proxy",
         null,
-        "The sandbox resolved to the same origin as the OpenWork host.",
+        "The sandbox resolved to the same origin as the LSS Harness host.",
         sandbox.expectedOrigin,
       )
       return
     }
     const bridge = new AppBridge(
       null,
-      { name: "OpenWork", version: "1.0.0" },
+      { name: "LSS Harness", version: "1.0.0" },
       readOnly ? (resolveLiveActions ? { serverTools: {} } : {}) : { serverTools: {}, openLinks: {} },
       {
         hostContext: {
@@ -458,7 +458,7 @@ export function McpAppSandboxView({ origin, app, resolveLiveActions, toolName, i
         await openDesktopUrl(url)
         return {}
       } catch (cause) {
-        console.error("[OpenWork MCP App] MCP_APP_OPEN_LINK_BLOCKED", {
+        console.error("[LSS Harness MCP App] MCP_APP_OPEN_LINK_BLOCKED", {
           toolName,
           message: safeMcpAppDiagnosticMessage(cause, "The link could not be opened."),
         })
@@ -783,7 +783,7 @@ export function McpAppSandboxView({ origin, app, resolveLiveActions, toolName, i
 }
 
 /**
- * OpenWork's own connection App is presented natively by this host (the
+ * LSS Harness's own connection App is presented natively by this host (the
  * connection card in the transcript); the Den App remains for external hosts.
  * The retired v1 resource is never embedded either.
  */
@@ -917,7 +917,7 @@ function EmbeddedMcpAppFrame({ part, origin: surfaceOrigin }: { part: DynamicToo
               elapsedMs: Math.round(performance.now() - startedAt),
               checkpoints: [...checkpoints],
             }
-            console.error(`[OpenWork MCP App] ${diagnostic.code}`, diagnostic)
+            console.error(`[LSS Harness MCP App] ${diagnostic.code}`, diagnostic)
             setError(diagnostic)
           }
         },

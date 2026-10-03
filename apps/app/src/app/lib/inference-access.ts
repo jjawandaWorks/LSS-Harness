@@ -130,7 +130,7 @@ export type AutoPickerState = "ready" | "exhausted" | "update_required" | "unava
 /** "v0.18.51 or newer" when the gateway told us the lowest version it accepts. */
 export function autoUpdateTarget(minimumVersion?: string | null) {
   const version = minimumVersion?.trim().replace(/^v/, "");
-  return version ? `OpenWork v${version} or newer` : "OpenWork";
+  return version ? `LSS Harness v${version} or newer` : "LSS Harness";
 }
 export function autoPickerCopy(state: AutoPickerState, signedIn: boolean, minimumVersion?: string | null, code?: string | null, resetsAt?: string | null) {
   switch (state) {
@@ -141,10 +141,10 @@ export function autoPickerCopy(state: AutoPickerState, signedIn: boolean, minimu
         detail: signedIn ? "This week’s free limit is used up. Pick another model to keep going." : "This week’s free limit is used up. Sign in for a larger free limit.",
         action: signedIn ? null : "Sign in" };
     }
-    case "update_required": return { subtitle: "Needs an OpenWork update", detail: minimumVersion?.trim() ? `Update to ${autoUpdateTarget(minimumVersion)} to keep using Auto. Your draft is kept.` : "Update OpenWork to keep using Auto. Your draft is kept.", action: "Update" };
+    case "update_required": return { subtitle: "Needs an LSS Harness update", detail: minimumVersion?.trim() ? `Update to ${autoUpdateTarget(minimumVersion)} to keep using Auto. Your draft is kept.` : "Update LSS Harness to keep using Auto. Your draft is kept.", action: "Update" };
     case "unavailable": return { subtitle: "Temporarily unavailable", detail: "Auto is having trouble right now. Other models still work.", action: "Retry" };
     case "sync": return { subtitle: "Finishing setup", detail: "Auto is almost ready. Reload the workspace if it doesn’t appear.", action: "Reload" };
-    case "ready": return { subtitle: "OpenWork picks the model", detail: "Free access ready", action: null };
+    case "ready": return { subtitle: "LSS Harness picks the model", detail: "Free access ready", action: null };
   }
 }
 

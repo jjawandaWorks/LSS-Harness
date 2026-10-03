@@ -31,7 +31,7 @@ export function runtimeModelOptions(data: ProviderList, isNewProvider: (provider
       behaviorTitle: summary.title, behaviorLabel: summary.label, behaviorDescription: summary.description,
       behaviorValue: summary.value, behaviorOptions: summary.options,
       isFree: isAutoModel(ref) || costsNothing(model),
-      // Zen with the person's own key or subscription (OpenWork, `opencode auth login`, env or config) is a real
+      // Zen with the person's own key or subscription (LSS Harness, `opencode auth login`, env or config) is a real
       // provider and stays listed in full; only the credential-less built-in Zen is a fallback.
       ...(provider.id === "opencode" && provider.source === "custom" && costsNothing(model) ? { zenFallback: true } : {}),
       ...(isNewProvider(provider.id) ? { isRecommended: true } : {}),
@@ -67,11 +67,11 @@ export type ModelCatalog = {
 };
 
 export function buildModelCatalog(input: ModelCatalogInput): ModelCatalog {
-  const runtime = input.runtime;
-  const fallback = input.fallback ?? [];
+  const runtime = input.runtime?.filter((option) => option.providerID === "ollama") ?? null;
+  const fallback = (input.fallback ?? []).filter((option) => option.providerID === "ollama");
   // Organization-assigned models stay listed while the engine catches up with a sync; the engine's own
   // record wins where both exist, and pending sign-in models sit on top.
-  const merged = withImportedModelMetadata(mergeModelOptions(input.pending ?? [], mergeModelOptions(runtime ?? [], fallback)), input.imports ?? {})
+  const merged = withImportedModelMetadata(mergeModelOptions([], mergeModelOptions(runtime ?? [], fallback)), input.imports ?? {})
     .map((option) => input.gatewayProviderIds?.has(option.providerID) ? { ...option, source: "gateway" as const } : option);
   const known = markDisabledModelOptions(filterCloudManagedModelOptions(merged, input.signedIn), input.disabledProviders ?? []);
   const entitled = filterEntitledModelOptions(known, { restrictToCloud: input.restrictToCloud, checkRestriction: input.checkRestriction });

@@ -75,17 +75,17 @@ export function OpenWorkWebAccessGateScreen(props: {
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-              OpenWork Web
+              LSS Harness Web
             </p>
             <h1 className="mt-2 text-[26px] font-semibold leading-tight tracking-[-0.03em]">
               {denied
-                  ? "OpenWork Web access is required"
-                  : "OpenWork Web remains locked"}
+                  ? "LSS Harness Web access is required"
+                  : "LSS Harness Web remains locked"}
             </h1>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
               {denied
-                  ? `${organizationName} does not have an active OpenWork Web subscription or complimentary admin grant.`
-                  : `Den could not confirm OpenWork Web access for ${organizationName}. The workspace stays locked until it can.`}
+                  ? `${organizationName} does not have an active LSS Harness Web subscription or complimentary admin grant.`
+                  : `Den could not confirm LSS Harness Web access for ${organizationName}. The workspace stays locked until it can.`}
             </p>
           </div>
         </div>

@@ -1,19 +1,19 @@
 {
-  "name": "OpenWork",
-  "short_name": "OpenWork",
-  "description": "Local-first agent workspace",
+  "name": "LSS Harness",
+  "short_name": "LSS Harness",
+  "description": "Local AI workspace powered by Ollama",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#f8fafc",
   "icons": [
     {
-      "src": "/apple-touch-icon.png",
+      "src": "/lss-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png"
     },
     {
-      "src": "/openwork-mark.svg",
+      "src": "/lss-mark.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"

@@ -426,16 +426,7 @@ export function CommandPalette(props: CommandPaletteProps) {
           },
         }]
       : []),
-    {
-      id: "cloud.sign_in",
-      title: "Sign in to OpenWork Cloud",
-      keywords: ["login", "account", "organization", "org", "den", "cloud"],
-      group: ACTIONS_GROUP,
-      action: () => {
-        props.onClose();
-        props.onOpenSettings("/settings/cloud-account");
-      },
-    },
+
   ], [props]);
 
   const allRootItems = useMemo(
@@ -639,7 +630,7 @@ export function CommandPalette(props: CommandPaletteProps) {
       }}
     >
       {model ? <span data-slot="model-provider-mark" className="flex size-4 shrink-0 items-center justify-center">
-        {isAutoModel(model) ? <img src={resolveExtensionIconSrc("/openwork-mark.svg")} alt="OpenWork" className="size-4" />
+        {isAutoModel(model) ? <img src={resolveExtensionIconSrc("/lss-mark.svg")} alt="LSS Harness" className="size-4" />
           : <ProviderIcon providerId={model.providerID} providerName={model.description} size={16} />}
       </span> : null}
       <div className="min-w-0 flex-1">

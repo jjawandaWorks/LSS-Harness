@@ -59,7 +59,7 @@ function desktopNotificationPreferenceLabel(value: DesktopNotificationPreference
 
 export function PreferencesView(props: PreferencesViewProps) {
   const linkDestinationItems = [
-    { value: "openwork", label: "OpenWork" },
+    { value: "openwork", label: "LSS Harness" },
     { value: "external", label: t("settings.links.external") },
   ];
   const desktopNotificationItems = DESKTOP_NOTIFICATION_PREFERENCE_VALUES.map((value) => ({

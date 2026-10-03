@@ -8,7 +8,7 @@ import type { DynamicToolUIPart } from "ai"
  */
 
 export type CapabilityCallSentence = {
-  /** Human service name, e.g. "Granola" or "OpenWork Cloud". */
+  /** Human service name, e.g. "Granola" or "LSS Harness Cloud". */
   service: string | null
   /** Present-tense line while the call runs. */
   present: string
@@ -76,7 +76,7 @@ export function parseRecord(value: unknown): Record<string, unknown> | null {
 }
 
 /** Brand names whose casing a plain title case would get wrong. */
-const BRAND_WORDS: Record<string, string> = { openwork: "OpenWork", github: "GitHub", gitlab: "GitLab", hubspot: "HubSpot" }
+const BRAND_WORDS: Record<string, string> = { openwork: "LSS Harness", github: "GitHub", gitlab: "GitLab", hubspot: "HubSpot" }
 
 function titleCase(slug: string): string {
   return slug
@@ -246,10 +246,10 @@ export function getCapabilityCallSentence(
   // place it ran rather than the plumbing tool ("execute capability script").
   if (toolName.endsWith("execute_capability_script")) {
     return {
-      service: "OpenWork Cloud",
-      present: "Running a script on OpenWork Cloud",
-      past: "Ran a script on OpenWork Cloud",
-      failure: "Script on OpenWork Cloud failed",
+      service: "LSS Harness Cloud",
+      present: "Running a script on LSS Harness Cloud",
+      past: "Ran a script on LSS Harness Cloud",
+      failure: "Script on LSS Harness Cloud failed",
     }
   }
 

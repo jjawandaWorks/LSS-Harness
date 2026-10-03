@@ -142,11 +142,7 @@ const APP_NAME = BLANK_SLATE_LAUNCH.appName;
 let currentDisplayAppName = APP_NAME;
 installStdioErrorHandlers();
 installSocketTypeOfServiceGuard();
-await initOpenworkSentry({
-  app,
-  distribution: DESKTOP_DISTRIBUTION,
-  packageMetadata: desktopPackageMetadata,
-});
+
 const BASE_APP_IDENTIFIER = isDevMode ? DEV_APP_IDENTIFIER : TAURI_APP_IDENTIFIER;
 const APP_IDENTIFIER = resolveAppIdentifier({
   appIdentifierOverride: process.env.OPENWORK_ELECTRON_APP_IDENTIFIER,
@@ -167,7 +163,7 @@ if (BLANK_SLATE_LAUNCH.enabled || process.env.OPENWORK_ELECTRON_USE_MOCK_KEYCHAI
 }
 const RELEASE_DOWNLOAD_BASE_URL = "https://github.com/different-ai/openwork/releases/latest/download";
 const RELEASE_PAGE_URL = "https://github.com/different-ai/openwork/releases/latest";
-const DOCS_PAGE_URL = "https://openworklabs.com/docs";
+const DOCS_PAGE_URL = "https://docs.ollama.com";
 const applicationMenu = createApplicationMenu({
   appName: APP_NAME,
   docsUrl: DOCS_PAGE_URL,
@@ -267,13 +263,13 @@ function resolveAppIconPath() {
     // Dev: match Tauri's separate dev icon so the dev app is visibly distinct.
     ...(isDevMode
       ? [
-          path.resolve(__dirname, "../resources/icons/dev/icon.png"),
-          path.resolve(__dirname, "../resources/icons/dev/128x128@2x.png"),
-          path.resolve(__dirname, "../resources/icons/dev/icon-dev.icns"),
+          path.resolve(__dirname, "../resources/icons/lss/icon.png"),
+          path.resolve(__dirname, "../resources/icons/lss/256x256.png"),
+          path.resolve(__dirname, "../resources/icons/lss/icon.icns"),
         ]
       : []),
     // Repo-relative path to the Electron resource icon set.
-    path.resolve(__dirname, "../resources/icons/icon.png"),
+    path.resolve(__dirname, "../resources/icons/lss/icon.png"),
     // Packaged Windows and Linux builds ship runtime icons via extraResources.
     path.join(process.resourcesPath ?? "", "icons", "linux", "512x512.png"),
     path.join(process.resourcesPath ?? "", "icons", "icon.png"),
@@ -1048,7 +1044,7 @@ configureFakeMediaForTests(app, envFlagEnabled("OPENWORK_ELECTRON_FAKE_MEDIA"));
 const DEFAULT_DEN_BASE_URL = "https://app.openworklabs.com";
 const DEFAULT_LOCAL_BASE_URL = "http://127.0.0.1:4096";
 const FORCE_DESKTOP_REQUIRE_SIGNIN =
-  DESKTOP_DISTRIBUTION.requireSignin || envFlagEnabled("OPENWORK_FORCE_SIGNIN");
+  false;
 const DEFAULT_DESKTOP_REQUIRE_SIGNIN = FORCE_DESKTOP_REQUIRE_SIGNIN;
 
 function envFlagEnabled(name) {
@@ -1120,7 +1116,7 @@ browserPanel = createBrowserPanel({
     try {
       const server = await runtimeManager.openworkServerInfo();
       if (!server.baseUrl || !(server.clientToken ?? server.ownerToken)) throw new Error("Policy service unavailable");
-      // loopback-fetch: the policy service is the locally managed OpenWork server.
+      // loopback-fetch: the policy service is the locally managed LSS Harness server.
       const response = await fetch(`${server.baseUrl}/managed-policy/evaluate`, {
         method: "POST",
         headers: { Authorization: `Bearer ${server.clientToken ?? server.ownerToken}`, "Content-Type": "application/json" },
@@ -1421,7 +1417,7 @@ const SHUTDOWN_SCREEN_HTML = `<!doctype html>
   <body>
     <main>
       <div class="spinner" aria-hidden="true"></div>
-      <div class="title">Stopping OpenWork services</div>
+      <div class="title">Stopping LSS Harness services</div>
       <div class="body">Closing local workers and background services...</div>
     </main>
   </body>
@@ -1474,13 +1470,13 @@ const quitInProgress = () => quitSequencer.phase() !== "idle";
 
 function assertOpenworkServerReady(info) {
   if (!info?.running) {
-    throw new Error("OpenWork server did not stay running after startup.");
+    throw new Error("LSS Harness server did not stay running after startup.");
   }
   if (!info.baseUrl) {
-    throw new Error("OpenWork server did not report a base URL after startup.");
+    throw new Error("LSS Harness server did not report a base URL after startup.");
   }
   if (!info.ownerToken && !info.clientToken) {
-    throw new Error("OpenWork server did not report an access token after startup.");
+    throw new Error("LSS Harness server did not report an access token after startup.");
   }
   return info;
 }
@@ -1984,7 +1980,7 @@ const desktopCommandHandlers = {
   },
   "getComputerUseState": async () => getComputerUseState(),
   "computerUseAction": async (event, value) => {
-    if (!mainWindow || event.sender !== mainWindow.webContents || event.senderFrame !== mainWindow.webContents.mainFrame) throw new Error("Computer Use controls require the main OpenWork window.");
+    if (!mainWindow || event.sender !== mainWindow.webContents || event.senderFrame !== mainWindow.webContents.mainFrame) throw new Error("Computer Use controls require the main LSS Harness window.");
     return computerUseAction(value);
   },
   "getComputerUseMcpCommand": async (event, ...args) => {
@@ -2574,7 +2570,7 @@ function assertDesktopActivation() {
     DESKTOP_DISTRIBUTION,
     workspaceStore.readDesktopBootstrapConfigSync(),
   )) {
-    throw new Error("OpenWork must be activated from your Den portal before this command is available.");
+    throw new Error("LSS Harness must be activated from your Den portal before this command is available.");
   }
 }
 
@@ -2700,7 +2696,7 @@ async function createMainWindow() {
     onRepeatedCrash: (details) => {
       dialog.showErrorBox(
         `${APP_NAME} could not recover`,
-        `The app renderer stopped repeatedly (${details.reason ?? "unknown reason"}). Quit and reopen OpenWork. Your workspace files were not deleted.`,
+        `The app renderer stopped repeatedly (${details.reason ?? "unknown reason"}). Quit and reopen LSS Harness. Your workspace files were not deleted.`,
       );
     },
   });
@@ -2885,7 +2881,7 @@ const { ensureAutoUpdater } = registerUpdaterIpc({
 
 if (!app.requestSingleInstanceLock()) {
   if (isDevMode && !app.isPackaged) {
-    console.error(`[openwork] Another OpenWork dev instance already holds this profile directory:
+    console.error(`[openwork] Another LSS Harness dev instance already holds this profile directory:
   ${app.getPath("userData")}
 The second process is exiting so its CDP port is released.
 Run this worktree with an isolated profile: OPENWORK_DEV_PROFILE=auto pnpm dev
@@ -2990,8 +2986,8 @@ or use: pnpm dev:worktree`);
     if (firstLaunchWorkspaceFailure) {
       runDetachedTask("show default workspace warning", () => dialog.showMessageBox(win, {
         type: "warning",
-        message: "OpenWork could not prepare its default folder",
-        detail: `OpenWork is open without a workspace. Use Add workspace in the sidebar to choose another folder.\n\n${firstLaunchWorkspaceFailure.error}`,
+        message: "LSS Harness could not prepare its default folder",
+        detail: `LSS Harness is open without a workspace. Use Add workspace in the sidebar to choose another folder.\n\n${firstLaunchWorkspaceFailure.error}`,
         buttons: ["Continue"],
       }));
     }
@@ -3012,7 +3008,7 @@ or use: pnpm dev:worktree`);
     // Initialize the packaged updater after the window is up so the user sees
     // a working app first. Renderer-owned checks pass the selected release
     // channel explicitly, avoiding stale stable-feed results for alpha users.
-    runDetachedTask("initialize updater", ensureAutoUpdater);
+
   }).catch((error) => {
     console.error("[desktop] startup failed", error);
     // A quit that arrives mid-startup aborts the pending window load and
@@ -3021,7 +3017,7 @@ or use: pnpm dev:worktree`);
     if (quitInProgress()) return;
     dialog.showErrorBox(
       `${APP_NAME} could not start`,
-      "OpenWork hit an unexpected startup error. Quit and reopen the app. If it continues, switch to a Stable build and share the diagnostics with support.",
+      "LSS Harness hit an unexpected startup error. Quit and reopen the app. If it continues, switch to a Stable build and share the diagnostics with support.",
     );
     app.quit();
   });

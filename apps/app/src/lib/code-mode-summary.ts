@@ -15,7 +15,7 @@ export function codeModeSummary(
   // even when the engine reports the script itself as completed.
   const allFailed = !options.running && calls.length > 0 && failedCalls.length === calls.length;
   if (options.failed || allFailed) {
-    // Name what failed when one call did ("Script on OpenWork Cloud failed").
+    // Name what failed when one call did ("Script on LSS Harness Cloud failed").
     const only = failedCalls.length === 1 ? failedCalls[0] : undefined;
     const failure = only ? getCapabilityCallSentence(only, { connectionName: options.serviceName(only), includeQuery: false }).failure : undefined;
     return failure ?? "Script failed";

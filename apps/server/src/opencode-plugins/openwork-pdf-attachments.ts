@@ -301,10 +301,10 @@ function textLayerLine(derived: DerivedPdf): string {
 
 function modelNote(support: ModelInputSupport, inlinePages: number, derived: DerivedPdf, reason: Reason): string {
   const why = reason.kind === "limits"
-    ? `${reason.detail}, so OpenWork`
+    ? `${reason.detail}, so LSS Harness`
     : support.known
-      ? "This model does not accept PDF input directly, so OpenWork"
-      : "This model's input capabilities are not listed, so OpenWork treated it as text-only and";
+      ? "This model does not accept PDF input directly, so LSS Harness"
+      : "This model's input capabilities are not listed, so LSS Harness treated it as text-only and";
   if (support.image && inlinePages > 0) return `model_note: ${why} attached the first ${inlinePages} page${inlinePages === 1 ? "" : "s"} as images (in order) and included the extracted text below.`;
   if (support.image) return `model_note: ${why} included the extracted text below.`;
   const scanned = derived.textPages > 0 && derived.pagesWithoutText.length === derived.textPages;
@@ -326,7 +326,7 @@ function derivedNote(source: PdfSource, derived: DerivedPdf, support: ModelInput
   const truncated = derived.text.length > MAX_INLINE_TEXT_CHARS;
   const renderedPages = derived.renderedPages.map((page) => page.page);
   const lines = [
-    `OpenWork prepared the PDF "${safePdfFilename(source.filename)}" before sending this request to the model.`,
+    `LSS Harness prepared the PDF "${safePdfFilename(source.filename)}" before sending this request to the model.`,
     `pages: ${derived.pageCount}`,
     `bytes: ${derived.bytes}`,
     `sha256: ${derived.sha256}`,
@@ -350,7 +350,7 @@ function derivedNote(source: PdfSource, derived: DerivedPdf, support: ModelInput
 
 function failureNote(source: PdfSource, message: string, derived: DerivedPdf | null): string {
   return [
-    `OpenWork could not prepare the PDF "${safePdfFilename(source.filename)}" for this model.`,
+    `LSS Harness could not prepare the PDF "${safePdfFilename(source.filename)}" for this model.`,
     `pdf_path: ${derived?.pdfPath ?? "unavailable"}`,
     `error: ${message}`,
     "The original PDF bytes were not forwarded to the provider. Tell the user what went wrong and, if the file is on disk, offer to work with it through tools.",
@@ -402,7 +402,7 @@ function megabytes(bytes: number): string {
 function claimNative(inspection: Inspection, budget: NativeBudget): { ok: true } | { ok: false; detail: string } {
   const { policy } = budget;
   if (inspection.bytes > policy.maxRawBytes) {
-    return { ok: false, detail: `This PDF is ${megabytes(inspection.bytes)}; above ${megabytes(policy.maxRawBytes)} OpenWork stops sending the PDF itself, which would be re-uploaded on every step` };
+    return { ok: false, detail: `This PDF is ${megabytes(inspection.bytes)}; above ${megabytes(policy.maxRawBytes)} LSS Harness stops sending the PDF itself, which would be re-uploaded on every step` };
   }
   const encoded = encodedSize(inspection.bytes);
   if (encoded > budget.encodedBytes) {
@@ -643,7 +643,7 @@ export const OpenWorkPdfAttachments = async (factoryInput?: unknown) => {
       [PAGE_TOOL_NAME]: {
         description: `Render specific pages of a PDF in this workspace and return them as images (when this model can view images) together with those pages' text. Use it after a PDF's extracted text was not enough — tables, figures, charts, scanned pages — or to reach pages beyond the ones already attached. Pages are 1-based; at most ${MAX_PAGES_PER_REQUEST} per call.`,
         args: {
-          pdf_path: z.string().min(1).describe("Workspace-relative path of the PDF, for example the pdf_path line of an OpenWork PDF note."),
+          pdf_path: z.string().min(1).describe("Workspace-relative path of the PDF, for example the pdf_path line of an LSS Harness PDF note."),
           pages: z.array(z.number().int().min(1)).min(1).max(MAX_PAGES_PER_REQUEST).describe("1-based page numbers to render."),
         },
         async execute(args: { pdf_path: string; pages: number[] }, context: unknown) {

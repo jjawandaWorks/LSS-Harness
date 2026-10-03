@@ -39,12 +39,10 @@ const workspaceCards: SettingsCardDefinition[] = [
 ];
 
 const globalCards: SettingsCardDefinition[] = [
-  { tab: "ai", icon: Sparkles, title: "AI Providers", desc: "Connect services that provide AI models." },
-  { tab: "cloud-account", icon: Cloud, title: "Cloud", desc: "OpenWork Cloud account and organization." },
+  { tab: "ollama", icon: Terminal, title: "Ollama", desc: "Choose a local model." },
   { tab: "appearance", icon: Paintbrush, title: "Appearance", desc: "Theme, font size, and display." },
   { tab: "shortcuts", icon: Keyboard, title: "Keyboard shortcuts", desc: "Keys that switch to your saved models." },
   { tab: "environment", icon: Terminal, title: "Environment", desc: "Environment variables and paths." },
-  { tab: "updates", icon: RefreshCcw, title: "Updates", desc: "App version and update channel." },
 ];
 
 function cardTitle(card: SettingsCardDefinition) {
@@ -118,50 +116,6 @@ export function GeneralSettingsView(props: GeneralSettingsViewProps) {
         </div>
       </div>
 
-      {/* Feedback */}
-      <div className="space-y-3">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.15em] text-dls-secondary">
-          Help
-        </div>
-        <div className="rounded-2xl border border-dls-border bg-dls-surface p-4">
-          <div className="space-y-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <LifeBuoy size={14} className="text-dls-secondary" />
-                <div className="text-[13px] font-medium text-dls-text">{t("settings.feedback_title")}</div>
-              </div>
-              <div className="mt-1 max-w-[58ch] text-[11px] text-dls-secondary">{t("settings.feedback_desc")}</div>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={props.onSendFeedback}
-              >
-                <MessageCircle size={12} />
-                {t("settings.send_feedback")}
-                <ArrowUpRight size={11} />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={props.onJoinDiscord}
-              >
-                {t("settings.join_discord")}
-                <ArrowUpRight size={11} />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={props.onReportIssue}
-              >
-                {t("settings.report_issue")}
-                <ArrowUpRight size={11} />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

@@ -647,7 +647,7 @@ export function useWorkspaceRouteState(input: UseWorkspaceRouteStateInput) {
 
       const { normalizedBaseUrl, resolvedToken, resolvedHostToken, hostInfo } = await withRouteRefreshTimeout(
         resolveOpenworkConnection(),
-        "OpenWork server connection",
+        "LSS Harness server connection",
       );
       if (!attempt.isCurrent()) return;
       if (!normalizedBaseUrl || !resolvedToken) {
@@ -1233,7 +1233,7 @@ export function useWorkspaceRouteState(input: UseWorkspaceRouteStateInput) {
   const selectedWorkspaceRoot = selectedWorkspace?.path?.trim() || "";
   // Single source of truth for the selected workspace's server URL/token/id.
   // For remote workspaces this is the worker that owns the workspace; for
-  // local workspaces it's the user's local OpenWork server.
+  // local workspaces it's the user's local LSS Harness server.
   const selectedWorkspaceEndpoint = useWorkspaceServerClient(selectedWorkspace, { baseUrl, token });
   const selectedWorkspaceServerToken = selectedWorkspaceEndpoint?.token ?? "";
   const defaultOpencodeBaseUrl = selectedWorkspaceEndpoint?.opencodeBaseUrl ?? "";

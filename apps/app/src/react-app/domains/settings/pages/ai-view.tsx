@@ -37,7 +37,7 @@ export type AiSettingsViewProps = {
   disabledProviders?: { id: string; name: string }[];
   enablingProviderId?: string | null;
   onEnableProvider?: (providerId: string) => void | Promise<void>;
-  /** The Gateway reports free Auto switched off: no OpenWork Models row for it. */
+  /** The Gateway reports free Auto switched off: no LSS Harness Models row for it. */
   autoSwitchedOff?: boolean;
   canAddProviders: boolean;
   organizationName?: string;
@@ -104,7 +104,7 @@ export function AiSettingsView(props: AiSettingsViewProps) {
       <p className="text-xs text-muted-foreground">{props.organizationName ? "Signed in or pasted by you. Keys never leave this device and only you can disconnect them." : "Works without an account. Keys you paste never leave this device and only you can disconnect them."}</p>
       <div className="divide-y divide-border">
         {showAuto ? <div className="flex min-h-12 items-center justify-between gap-3 px-4 py-3" data-testid="settings-auto-provider">
-          <div className="flex min-w-0 items-center gap-3"><ProviderIcon providerId="openwork" size={20} /><div><div className="flex flex-wrap items-center gap-2"><span className="text-sm font-medium">OpenWork Models</span><span className="text-xs text-muted-foreground">{autoOff ? "Turned off" : props.autoError ? "Could not verify" : autoAvailable ? "Included" : "Unavailable"}</span></div><p className="text-xs text-muted-foreground">{props.organizationName ? "Auto · Free · weekly limit for your account" : "Auto · Free · No account needed · weekly limit on this device"}</p></div></div>
+          <div className="flex min-w-0 items-center gap-3"><ProviderIcon providerId="openwork" size={20} /><div><div className="flex flex-wrap items-center gap-2"><span className="text-sm font-medium">LSS Harness Models</span><span className="text-xs text-muted-foreground">{autoOff ? "Turned off" : props.autoError ? "Could not verify" : autoAvailable ? "Included" : "Unavailable"}</span></div><p className="text-xs text-muted-foreground">{props.organizationName ? "Auto · Free · weekly limit for your account" : "Auto · Free · No account needed · weekly limit on this device"}</p></div></div>
           {props.onSetAutoEnabled ? <Button variant="ghost" disabled={props.autoBusy || (autoOff && !props.autoPreferences?.canEnable)} onClick={() => void props.onSetAutoEnabled?.(autoOff)}>{autoOff ? "Turn on" : "Turn off"}</Button> : null}
         </div> : null}
         {local.map((provider) => <div key={provider.id} className="flex min-h-12 items-center justify-between gap-3 px-4 py-3" data-provider-scope="device">

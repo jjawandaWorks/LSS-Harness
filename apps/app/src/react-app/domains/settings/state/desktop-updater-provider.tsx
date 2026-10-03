@@ -34,7 +34,7 @@ function useUpdater() {
   // and fallen back to the last known one) the organization's allowed desktop
   // versions cannot be honoured, so no update check (and therefore no
   // download) may run yet.
-  const allowedVersionsKnown = !useEnterpriseActivationRequired() && !desktopConfig.loading;
+  const allowedVersionsKnown = false;
   const [updateAutoCheck, setUpdateAutoCheck] = useUpdatePreference("openwork.react.settings.update-auto-check");
   // Older Settings wrote "0" even when the user never touched the old opt-in.
   // Start the automatic-download default once, then retain future opt-outs.

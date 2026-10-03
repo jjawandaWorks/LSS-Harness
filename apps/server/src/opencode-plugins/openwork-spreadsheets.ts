@@ -20,7 +20,7 @@ import {
 } from "@openwork/workbook";
 
 /**
- * OpenWork Spreadsheets Plugin
+ * LSS Harness Spreadsheets Plugin
  *
  * Gives the agent first-class Excel workbook tools so it never has to shell
  * out to ad-hoc scripts or read binary .xlsx bytes through the text tools:

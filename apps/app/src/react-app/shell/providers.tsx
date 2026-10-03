@@ -6,10 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { isWebDeployment } from "@/app/lib/openwork-deployment";
 import { hydrateOpenworkServerSettingsFromEnv } from "@/app/lib/openwork-server";
 import { isDesktopRuntime } from "@/app/utils";
-import { ConnectLinkProvider } from "@/react-app/domains/cloud/connect-link-provider";
 import { DenAuthProvider } from "@/react-app/domains/cloud/den-auth-provider";
-import { AutoRejectedTurnRecoveryBridge } from "@/react-app/domains/cloud/auto-access-ui";
-import { AutomationRunnerBridge } from "@/react-app/domains/automations/automation-runner-bridge";
 import { GlobalQueueDrainerBridge } from "@/react-app/domains/session/sync/global-queue-drainer-bridge";
 import { BrandThemeProvider } from "@/react-app/domains/cloud/brand-theme";
 import { DesktopConfigProvider } from "@/react-app/domains/cloud/desktop-config-provider";
@@ -62,14 +59,14 @@ export function EnterpriseAwareAppProviders({ children }: AppProvidersProps) {
   return (
     <>
       <DesktopRuntimeBoot />
-      <ConnectLinkProvider>
+
         <DesktopConfigProvider>
           <BrandThemeProvider>
             <RestrictionNoticeProvider>
               <LocalProvider>
-                <AutomationRunnerBridge />
+
                 <GlobalQueueDrainerBridge />
-                <AutoRejectedTurnRecoveryBridge />
+
                 <ReloadCoordinatorProvider>{children}</ReloadCoordinatorProvider>
                 <LinkOpenDialog />
                 <Toaster />
@@ -77,7 +74,7 @@ export function EnterpriseAwareAppProviders({ children }: AppProvidersProps) {
             </RestrictionNoticeProvider>
           </BrandThemeProvider>
         </DesktopConfigProvider>
-      </ConnectLinkProvider>
+
     </>
   );
 }

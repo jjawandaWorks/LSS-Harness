@@ -336,7 +336,7 @@ const ToolMessageInner = ({ part }: ToolMessageProps) => {
     return <OpenWorkAutomationProposalTool part={part} />
   }
 
-  // OpenWork's own connection reports render as the native card: the host is
+  // LSS Harness's own connection reports render as the native card: the host is
   // the presentation; the Den App remains for external hosts.
   if (part.type === "dynamic-tool" && connectionCardParts.has(part.toolCallId)) {
     return <ConnectionCard part={part} allowDiscovery={Boolean(getConnectionDecision?.(part.toolCallId))} />
@@ -1154,7 +1154,7 @@ interface ErrorMessageProps {
   /** Error type, status, provider, code, response body — for bug reports and support. */
   technicalDetails?: string | null
   /**
-   * Set (possibly null) only when the OpenWork Gateway rejected the request
+   * Set (possibly null) only when the LSS Harness Gateway rejected the request
    * because the member must sign in: a URL opens the grant in the browser,
    * null deep-links to Settings > AI providers instead.
    */
@@ -1368,7 +1368,7 @@ function collectMcpAppParts(items: UIMessageWithIndex[]): DynamicToolUIPart[] {
 }
 
 /**
- * Every card of an App built in OpenWork opens the App's current revision, so
+ * Every card of an App built in LSS Harness opens the App's current revision, so
  * only its newest card in the conversation stays live; earlier ones would load
  * the same App again. A string keeps memoized groups stable while text streams.
  */

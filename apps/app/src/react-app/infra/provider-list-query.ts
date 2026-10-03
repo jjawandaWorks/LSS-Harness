@@ -73,8 +73,8 @@ export function clearProviderListQueries(queryClient: QueryClient) {
 
 /** The connected providers as the `{all, connected, default}` shape every reader already uses. */
 export function providerListFromConnected(value: ConfigProvidersResponse): ProviderListResponse {
-  const all = value.providers ?? [];
-  return { all, connected: all.map((provider) => provider.id), default: value.default ?? {} };
+  const all = (value.providers ?? []).filter((provider) => provider.id === "ollama");
+  return { all, connected: all.map((provider) => provider.id), default: Object.fromEntries(Object.entries(value.default ?? {}).filter(([id]) => id === "ollama")) };
 }
 
 /**
@@ -101,11 +101,11 @@ export async function fetchProviderCatalog(input: {
   client: Client;
   directory?: string | null;
 }): Promise<ProviderListResponse> {
-  return unwrap(
+  return ollamaProviderList(unwrap(
     await input.client.provider.list({
       directory: input.directory?.trim() || undefined,
     }),
-  );
+  ));
 }
 
 export function ensureProviderCatalogQuery(
@@ -183,7 +183,7 @@ export function readSavedProviderList(directory?: string | null): ProviderListRe
     const raw = storage.getItem(savedProviderListKey(directory));
     if (!raw) return undefined;
     const parsed = savedProviderListSchema.safeParse(JSON.parse(raw));
-    return parsed.success ? parsed.data.value : undefined;
+    return parsed.success ? ollamaProviderList(parsed.data.value) : undefined;
   } catch {
     return undefined;
   }
@@ -208,8 +208,8 @@ export function getConnectedProviderItems(value: ProviderListResponse | null | u
   const connected = new Set(value?.connected ?? []);
   return (value?.all ?? []).filter(
     (provider) =>
-      connected.has(provider.id) &&
-      (provider.source !== "custom" || provider.id === "opencode" || Object.keys(provider.models ?? {}).length > 0),
+      provider.id === "ollama" && connected.has(provider.id) &&
+      (provider.source !== "custom" || Object.keys(provider.models ?? {}).length > 0),
   );
 }
 
@@ -386,4 +386,8 @@ export function useProviderListQuery(input: {
       });
     },
   });
+}
+
+export function ollamaProviderList(value: ProviderListResponse): ProviderListResponse {
+  return { all: value.all.filter((provider) => provider.id === "ollama"), connected: value.connected.filter((id) => id === "ollama"), default: Object.fromEntries(Object.entries(value.default).filter(([id]) => id === "ollama")) };
 }

@@ -72,14 +72,14 @@ export function CodeModeTool({ part, calls: allCalls, lifecycle, connectors }: {
     ? formatElapsedSeconds(liveDuration)
     : statusUnknown ? null : trackToolCallDuration(part);
   const serviceName = (call: DynamicToolUIPart) => {
-    // Catalog search is an OpenWork mechanism, not a service the person used.
+    // Catalog search is an LSS Harness mechanism, not a service the person used.
     if (call.toolName.endsWith("search_capabilities")) return null;
     // The service a call reached (Render, Slack…) wins. Only calls with no
     // connector of their own, such as Den scripts, are named by where they
     // ran; the MCP's settings title ("Cloud Control") is plumbing.
     const connector = resolveConnectorToolIdentity(call, connectors);
     if (connector?.name) return connector.name;
-    if (call.toolName.startsWith("openwork-cloud_")) return "OpenWork Cloud";
+    if (call.toolName.startsWith("openwork-cloud_")) return "LSS Harness Cloud";
     return getCapabilityCallSentence(call, { includeQuery: false }).service;
   };
   const summary = codeModeSummary(calls, { running, failed, serviceName });

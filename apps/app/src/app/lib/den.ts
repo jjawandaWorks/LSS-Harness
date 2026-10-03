@@ -89,7 +89,7 @@ const ORG_PROXY_HEADER = "x-openwork-legacy-org-id";
 const ORG_SCOPE_HEADER = "x-openwork-org-id";
 const DEFAULT_DEN_TIMEOUT_MS = 12_000;
 
-export const DEFAULT_DEN_AUTH_NAME = "OpenWork User";
+export const DEFAULT_DEN_AUTH_NAME = "LSS Harness User";
 const BUILD_DEN_BASE_URL =
   (typeof import.meta !== "undefined" && typeof import.meta.env?.VITE_DEN_BASE_URL === "string"
     ? import.meta.env.VITE_DEN_BASE_URL
@@ -732,10 +732,10 @@ export function denOriginComparisonKey(input: string | null | undefined): string
 }
 
 /**
- * True when the effective Den control plane is not the hosted OpenWork Cloud
+ * True when the effective Den control plane is not the hosted LSS Harness Cloud
  * (app.openworklabs.com). Self-hosted deployments point the app at their own
  * control plane via VITE_DEN_BASE_URL or the desktop bootstrap config, so
- * hosted-only surfaces (e.g. OpenWork Models upsells) should stay hidden.
+ * hosted-only surfaces (e.g. LSS Harness Models upsells) should stay hidden.
  */
 export function isSelfHostedControlPlane(): boolean {
   return (
@@ -818,7 +818,7 @@ function isHostedDenHost(hostname: string): boolean {
  *
  * Only two shapes are known ahead of time:
  * - An explicit API host (`api.*`) is already the API origin.
- * - Hosted OpenWork Cloud (`*.openworklabs.com`) serves its API at the
+ * - Hosted LSS Harness Cloud (`*.openworklabs.com`) serves its API at the
  *   `api.`-prefixed host.
  *
  * Every other deployment (self-hosted single host, localhost, tunnel or
@@ -1213,134 +1213,16 @@ function shouldWithholdDenCredentials(bootstrapBaseUrl: string): boolean {
   return withheld;
 }
 
-export function readDenBootstrapConfig(): DenBootstrapConfig {
-  const gatewayOrigin = getOpenworkGatewayOrigin();
-  if (gatewayOrigin) {
-    if (
-      gatewayBootstrapConfig &&
-      gatewayBootstrapConfigOrigin === gatewayOrigin &&
-      gatewayBootstrapConfigSource === desktopBootstrapConfig
-    ) {
-      return gatewayBootstrapConfig;
-    }
-
-    gatewayBootstrapConfig = {
-      ...desktopBootstrapConfig,
-      ...resolveDenBaseUrls({
-        baseUrl: desktopBootstrapConfig.baseUrl,
-        apiBaseUrl: gatewayOrigin,
-      }),
-    };
-    gatewayBootstrapConfigOrigin = gatewayOrigin;
-    gatewayBootstrapConfigSource = desktopBootstrapConfig;
-    return gatewayBootstrapConfig;
-  }
-
-  return desktopBootstrapConfig;
-}
+const localBootstrap: DenBootstrapConfig = {
+  baseUrl: "http://127.0.0.1", apiBaseUrl: "http://127.0.0.1", source: "default",
+  requireSignin: false, requireActivation: false,
+};
+export function readDenBootstrapConfig(): DenBootstrapConfig { return localBootstrap; }
 
 export async function initializeDenBootstrapConfig(): Promise<DenBootstrapConfig> {
-  const generation = ++desktopBootstrapGeneration;
-
-  if (!isDesktopRuntime()) {
-    const gatewayOrigin = getOpenworkGatewayOrigin();
-    // Forced env settings (headless/dev runs): stale stored base URLs from
-    // earlier sessions must not override the launcher-provided control plane.
-    if (readForceEnvDenSettings() && typeof window !== "undefined") {
-      try {
-        window.localStorage.removeItem(STORAGE_BASE_URL);
-      } catch {
-        // Storage unavailable: nothing stale to clear.
-      }
-    }
-    desktopBootstrapConfig = resolveDenBootstrapConfig({
-      baseUrl: BUILD_DEN_BASE_URL,
-      ...(gatewayOrigin ? { apiBaseUrl: gatewayOrigin } : {}),
-      requireSignin: BUILD_DEN_REQUIRE_SIGNIN,
-    });
-    desktopBootstrapResolution = "resolved";
-    return desktopBootstrapConfig;
-  }
-
-  const initialBootstrap = readInitialDesktopBootstrapConfig();
-  if (initialBootstrap) {
-    const resolved = await resolveBootBootstrapConfig(initialBootstrap);
-    if (generation !== desktopBootstrapGeneration) return readDenBootstrapConfig();
-    applyDesktopBootstrapConfig(resolved);
-    adoptUntaggedDenSessionOrigin();
-    return desktopBootstrapConfig;
-  }
-
-  // The shell IPC bridge can be momentarily unavailable at first paint;
-  // retry briefly before giving up so a boot race does not poison the
-  // session with build defaults.
-  const SHELL_BOOTSTRAP_ATTEMPTS = 3;
-  const SHELL_BOOTSTRAP_RETRY_DELAY_MS = 350;
-  for (let attempt = 1; attempt <= SHELL_BOOTSTRAP_ATTEMPTS; attempt += 1) {
-    try {
-      const bootstrap = await getDesktopBootstrapConfigFromShell();
-      const resolved = await resolveBootBootstrapConfig(bootstrap);
-      if (generation !== desktopBootstrapGeneration) return readDenBootstrapConfig();
-      applyDesktopBootstrapConfig(resolved);
-      adoptUntaggedDenSessionOrigin();
-      return desktopBootstrapConfig;
-    } catch (error) {
-      console.error("[den-bootstrap] shell read failed", attempt, error);
-      if (generation !== desktopBootstrapGeneration) return readDenBootstrapConfig();
-      if (attempt < SHELL_BOOTSTRAP_ATTEMPTS) {
-        await new Promise((resolve) => setTimeout(resolve, SHELL_BOOTSTRAP_RETRY_DELAY_MS));
-      }
-    }
-  }
-
-  if (generation !== desktopBootstrapGeneration) return readDenBootstrapConfig();
-
-  // All quick attempts failed. Keep build defaults in memory only — do NOT
-  // sync them to localStorage: previously synced values from a successful
-  // boot are more trustworthy than build defaults, and clobbering them
-  // silently reverted custom/self-hosted control planes to the production
-  // URL until a manual reload. The snapshot stays `unresolved`: it is a
-  // recovery placeholder, not a real hosted selection, so retained
-  // credentials remain quarantined until an authoritative read succeeds.
-  desktopBootstrapConfig = resolveDenBootstrapConfig({
-    baseUrl: HOSTED_DEFAULT_DEN_BASE_URL,
-    requireSignin: BUILD_DEN_REQUIRE_SIGNIN,
-  });
-  desktopBootstrapResolution = "unresolved";
-  console.warn(
-    "[den-bootstrap] Shell bootstrap is unavailable; using an in-memory placeholder and withholding Den credentials until the real config is read.",
-  );
-
-  // Heal in the background without blocking boot: once the bridge comes up,
-  // apply the real shell config and notify listeners. Results from an
-  // obsolete startup generation are discarded.
-  void (async () => {
-    for (let attempt = 0; attempt < 15; attempt += 1) {
-      await new Promise((resolve) => setTimeout(resolve, 2_000));
-      if (generation !== desktopBootstrapGeneration) return;
-      try {
-        const bootstrap = await getDesktopBootstrapConfigFromShell();
-        const resolved = await resolveBootBootstrapConfig(bootstrap);
-        if (generation !== desktopBootstrapGeneration) return;
-        applyDesktopBootstrapConfig(resolved);
-        adoptUntaggedDenSessionOrigin();
-        dispatchDenSettingsChanged({ settings: readDenSettings() });
-        return;
-      } catch {
-        // Bridge still unavailable — keep trying.
-      }
-    }
-  })();
-
-  return desktopBootstrapConfig;
+  return readDenBootstrapConfig();
 }
 
-/**
- * Re-reads desktop-bootstrap.json from the shell and applies it to the cached
- * snapshot, notifying listeners. Used after the shell itself persisted a new
- * config (e.g. an accepted connect link) so the renderer converges without a
- * reload.
- */
 export async function refreshDenBootstrapConfigFromShell(): Promise<DenBootstrapConfig> {
   if (isDesktopRuntime()) {
     const generation = ++desktopBootstrapGeneration;
@@ -1463,45 +1345,7 @@ function resolveRequestBaseUrl(baseUrls: DenBaseUrls, path: string): string {
 }
 
 export function readDenSettings(): DenSettings {
-  if (typeof window === "undefined") {
-    return {
-      ...readDenBootstrapConfig(),
-      authToken: null,
-      activeOrgId: null,
-      activeOrgSlug: null,
-      activeOrgName: null,
-    };
-  }
-
-  const bootstrapConfig = readDenBootstrapConfig();
-  const baseUrls = resolveDenBaseUrls(
-    isDesktopRuntime() || getOpenworkGatewayOrigin()
-      ? bootstrapConfig
-      : { baseUrl: window.localStorage.getItem(STORAGE_BASE_URL) ?? bootstrapConfig.baseUrl },
-  );
-
-  // Origin coherence: the retained token and organization are only usable
-  // together with the origin that issued them. While the bootstrap is
-  // unresolved, or when it resolved to a different control plane, the
-  // retained session stays quarantined in storage — visible to no caller, so
-  // no credential-bearing request can mix origins.
-  if (shouldWithholdDenCredentials(bootstrapConfig.baseUrl)) {
-    return {
-      ...baseUrls,
-      authToken: null,
-      activeOrgId: null,
-      activeOrgSlug: null,
-      activeOrgName: null,
-    };
-  }
-
-  return {
-    ...baseUrls,
-    authToken: (window.localStorage.getItem(STORAGE_AUTH_TOKEN) ?? "").trim() || null,
-    activeOrgId: (window.localStorage.getItem(STORAGE_ACTIVE_ORG_ID) ?? "").trim() || null,
-    activeOrgSlug: (window.localStorage.getItem(STORAGE_ACTIVE_ORG_SLUG) ?? "").trim() || null,
-    activeOrgName: (window.localStorage.getItem(STORAGE_ACTIVE_ORG_NAME) ?? "").trim() || null,
-  };
+  return { ...readDenBootstrapConfig(), authToken: null, activeOrgId: null, activeOrgSlug: null, activeOrgName: null };
 }
 
 export function getDenDesktopConfigCacheKey(): string {
@@ -3355,7 +3199,7 @@ export function createDenClient(options: {
       });
       const access = parseDenOpenWorkWebAccess(payload);
       if (!access) {
-        throw new DenApiError(500, "invalid_openwork_web_access_payload", "OpenWork Web access response was invalid.");
+        throw new DenApiError(500, "invalid_openwork_web_access_payload", "LSS Harness Web access response was invalid.");
       }
       return access;
     },
@@ -3456,7 +3300,7 @@ export function createDenClient(options: {
       });
     },
 
-    /** Web creation surface: placement is fixed to OpenWork Cloud by the route. */
+    /** Web creation surface: placement is fixed to LSS Harness Cloud by the route. */
     async createCloudAutomation(orgId: string, input: CreateCloudAutomation): Promise<AutomationDetail> {
       return requestJson<AutomationDetail>(baseUrls, "/v1/cloud-automations", {
         method: "POST",

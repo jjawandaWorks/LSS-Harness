@@ -64,7 +64,7 @@ const BUILT_IN_ZEN_PROVIDER_ID = "opencode";
  * The engine's built-in OpenCode Zen models are a silent fallback, not a
  * provider people chose: they stay listed only while nothing else is
  * available. Zen set up with the person's own key or subscription (in
- * OpenWork or with `opencode auth login`) is a connected provider and always
+ * LSS Harness or with `opencode auth login`) is a connected provider and always
  * stays listed in full. Matches the picker designs, which show Zen only under
  * Connect a provider.
  */

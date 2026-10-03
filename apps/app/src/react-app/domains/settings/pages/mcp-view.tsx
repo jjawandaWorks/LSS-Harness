@@ -188,7 +188,7 @@ export type McpViewProps = {
   installedCommands?: LibraryCommandItem[];
   /** Composer agents to render in Library. */
   installedAgents?: LibraryAgentItem[];
-  /** MCP capabilities assigned through OpenWork Connect. */
+  /** MCP capabilities assigned through LSS Harness Connect. */
   availableConnectMcpServers?: McpServerEntry[];
   availableConnectMcpStatuses?: McpStatusMap;
   /** Organization inventory is still being fetched and nothing is cached yet. */
@@ -208,7 +208,7 @@ export type McpViewProps = {
   mcpLastUpdatedAt: number | null;
   mcpStatuses: McpStatusMap;
   mcpConnectingName: string | null;
-  /** False when secure storage for OpenWork-managed sign-ins is unavailable on this device. */
+  /** False when secure storage for LSS Harness-managed sign-ins is unavailable on this device. */
   managedOAuthAvailable?: boolean;
   /** Organization policy permission for local extension configuration. */
   allowManageExtensions: boolean;
@@ -224,7 +224,7 @@ export type McpViewProps = {
   isExtensionConnected?: (entry: McpDirectoryInfo) => boolean;
   /** Enablement context for evaluating extension active state. */
   enablementContext?: import("../../../../app/enablement").EnablementContext;
-  /** Organization policy restriction for OpenWork-provided built-in extensions. */
+  /** Organization policy restriction for LSS Harness-provided built-in extensions. */
   builtInExtensionsDisabled?: boolean;
   /** Preview a Claude Code plugin bundle from a GitHub URL ("Will install" disclosure). */
   previewClaudePlugin?: (url: string) => Promise<OpenworkClaudePluginPreview>;
@@ -1074,7 +1074,7 @@ export function McpView(props: McpViewProps) {
 
   // Servers written into this workspace's config appear under MCPs as local
   // items. Projected Cloud connections have their own account controls, and
-  // OpenWork's own runtimes are app functionality rather than MCPs to browse.
+  // LSS Harness's own runtimes are app functionality rather than MCPs to browse.
   const localServers = props.mcpServers.filter((entry) => {
     if (isConnectDirectMcpServerName(entry.name)) return false;
     const match = resolveQuickConnectMatch(entry.name);
@@ -1107,7 +1107,7 @@ export function McpView(props: McpViewProps) {
     return isQuickConnectConfigured(entry);
   };
 
-  // Built-in OpenWork extensions answer to `allowBuiltInExtensions`; every
+  // Built-in LSS Harness extensions answer to `allowBuiltInExtensions`; every
   // other directory entry is a local install governed by
   // `allowManageExtensions`. Entries the member already installed stay usable
   // but can no longer be managed.
@@ -1274,7 +1274,7 @@ export function McpView(props: McpViewProps) {
             description={detailSkill.description ?? "Installed skill"}
             taxonomy="skill"
             connected={true}
-            connectedLabel={detailSkill.origin === "openwork-connect" ? "Available through OpenWork Connect" : undefined}
+            connectedLabel={detailSkill.origin === "openwork-connect" ? "Available through LSS Harness Connect" : undefined}
             hidden={hidden}
             path={detailSkill.origin === "openwork-connect" ? undefined : detailSkill.path}
             sourceLabel={
@@ -1363,11 +1363,11 @@ export function McpView(props: McpViewProps) {
               ? `Provided by ${detailConnectMcp.pluginName}${detailConnectMcp.marketplaceName ? ` · ${detailConnectMcp.marketplaceName}` : ""}.`
               : detailConnectMcp.marketplaceName
                 ? `Provided by ${detailConnectMcp.marketplaceName}.`
-                : "Available through OpenWork Connect."
+                : "Available through LSS Harness Connect."
           }
           taxonomy="connection"
           connected={(props.availableConnectMcpStatuses?.[detailConnectMcp.id ?? detailConnectMcp.name]?.status) === "connected"}
-          connectedLabel="Available through OpenWork Connect"
+          connectedLabel="Available through LSS Harness Connect"
           disconnectedLabel="Setup required"
           url={detailConnectMcp.config.type === "remote" ? detailConnectMcp.config.url : undefined}
           oauth={detailConnectMcp.config.type === "remote"}
@@ -2372,7 +2372,7 @@ const lockedLibraryPreviews: Array<{ name: string; description: string; iconSrc:
 ];
 
 /**
- * Signed out, adding to the Library needs OpenWork Cloud, so the page's one
+ * Signed out, adding to the Library needs LSS Harness Cloud, so the page's one
  * primary action is signing in. It lives here, above what it unlocks, instead
  * of a header "Add to library" that could not do anything.
  */

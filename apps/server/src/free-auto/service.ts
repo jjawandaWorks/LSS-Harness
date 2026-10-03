@@ -81,7 +81,7 @@ export class AnonymousInferenceService {
     // Without the desktop's signer (OpenWork web, headless), Auto still works signed out as an open client, like
     // OpenCode Zen's "public" key: no proof and no guest session; the gateway limits it by IP.
     this.desktop = config.anonymousInference?.desktop ?? null;
-    this.enabled = !config.readOnly && !this.settings.disabledByEnvironment;
+    this.enabled = false;
   }
 
   // ── Identity ───────────────────────────────────────────────────────────

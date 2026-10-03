@@ -201,16 +201,13 @@ export function getGlobalSettingsTabs(
   developerMode: boolean,
   capabilities: Pick<PlatformCapabilities, "autoUpdate">,
 ): SettingsTab[] {
-  const tabs: SettingsTab[] = ["ai", "ollama", "appearance", "shortcuts", "environment"];
-  if (capabilities.autoUpdate) tabs.push("updates");
+  const tabs: SettingsTab[] = ["ollama", "appearance", "shortcuts", "environment"];
+
   if (developerMode) tabs.push("debug");
   return tabs;
 }
 
-export const CLOUD_SETTINGS_TABS: SettingsTab[] = [
-  "cloud-account",
-  "usage",
-];
+export const CLOUD_SETTINGS_TABS: SettingsTab[] = [];
 
 export function isSettingsTabBeta(_tab: SettingsTab) {
   return false;

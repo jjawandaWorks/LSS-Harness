@@ -19,8 +19,8 @@ export default {
         editor.add({
           name,
           description: name === "openwork_context"
-            ? "Read OpenWork app context and available read-only affordances. Use this to discover session.search and session.read for other conversations."
-            : "Read an OpenWork affordance without changing the app or navigating. Use the exact id and arguments from openwork_context; session.read includes live background-agent activity.",
+            ? "Read LSS Harness app context and available read-only affordances. Use this to discover session.search and session.read for other conversations."
+            : "Read an LSS Harness affordance without changing the app or navigating. Use the exact id and arguments from openwork_context; session.read includes live background-agent activity.",
           input: name === "openwork_context" ? { type: "object", properties: {}, additionalProperties: false } : {
             type: "object", properties: { id: { type: "string" }, args: { type: "object", additionalProperties: true } },
             required: ["id"], additionalProperties: false,
@@ -32,7 +32,7 @@ export default {
               headers: { Authorization: `Bearer ${context.options.token}`, "Content-Type": "application/json" },
               body: JSON.stringify({ name, input }),
             });
-            if (!response.ok) throw new Error(`OpenWork read failed (${response.status})`);
+            if (!response.ok) throw new Error(`LSS Harness read failed (${response.status})`);
             return { content: [{ type: "text", text: await response.text() }] };
           },
         });

@@ -6,13 +6,13 @@ import type { ModelRef } from "../../app/types";
 
 /**
  * Mirrors the model a new chat in a workspace would use onto that workspace's
- * OpenWork server, so background callers (automations, remote sessions, cloud
+ * LSS Harness server, so background callers (automations, remote sessions, cloud
  * workers) start sessions on the same model instead of a stale engine default.
  * Best effort: failures are swallowed and never reach the UI.
  */
 
 export type WorkspaceDefaultModelSyncTarget = {
-  /** Identifies the OpenWork server; an older server without the route disables sync for all its workspaces. */
+  /** Identifies the LSS Harness server; an older server without the route disables sync for all its workspaces. */
   serverKey: string;
   /** Identifies the workspace (and credentials) on that server for dedupe. */
   workspaceKey: string;
